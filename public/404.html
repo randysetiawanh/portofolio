@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sheet not found — Randy Setiawan Hoesin</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#080C11" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EBEEF1" media="(prefers-color-scheme: light)">
+<style>
+:root{
+  --ink:#080C11;--panel:#0E141B;--rule:#1F2C39;--dim:#6E8194;
+  --text:#DCE5ED;--structure:#3A7BFD;--signal:#FF7A18;
+  --grid:rgba(58,123,253,.055);
+}
+@media (prefers-color-scheme:light){
+  :root{--ink:#EBEEF1;--panel:#F6F8FA;--rule:#C3CEDA;--dim:#5A6B7C;
+        --text:#111A22;--structure:#1F5AD6;--signal:#C0530B;--grid:rgba(31,90,214,.05);}
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;display:grid;place-content:center;gap:1.5rem;
+  padding:2rem;background:var(--ink);color:var(--text);
+  font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:64px 64px;
+}
+.lbl{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.6875rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);
+}
+h1{margin:0;font-size:clamp(2.5rem,9vw,5rem);line-height:1;letter-spacing:-.03em}
+h1 em{font-style:normal;color:var(--signal)}
+p{margin:0;max-width:44ch;line-height:1.65}
+.box{border:1px solid var(--rule);background:var(--panel);padding:1.5rem;display:grid;gap:.9rem;position:relative}
+.box::before,.box::after{content:"";position:absolute;width:11px;height:11px;border:1px solid var(--structure)}
+.box::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.box::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+a{color:var(--signal);text-decoration:none;font-family:ui-monospace,monospace;font-size:.8125rem;letter-spacing:.1em;text-transform:uppercase}
+a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+</style>
+</head>
+<body>
+  <div class="box">
+    <span class="lbl">Error 404 · Sheet not on file</span>
+    <h1>Nothing drawn<br>here<em>.</em></h1>
+    <p>This address is not part of the register. The systems index is on the front sheet.</p>
+    <a href="/">← Back to sheet 01</a>
+  </div>
+</body>
+</html>

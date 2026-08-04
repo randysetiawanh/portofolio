@@ -1,0 +1,5 @@
+-- Hero position rows become editable content; the keys that used to hold
+-- their labels can never render again, so they go.
+INSERT OR REPLACE INTO content (key, value, updated_at) VALUES ('identity', '{"lines":["Randy","Setiawan","Hoesin"],"coords":[{"en":"Jakarta, ID","id":"Jakarta, ID"},{"en":"6°10′S 106°49′E","id":"6°10′S 106°49′E","num":true},{"en":"GMT+7","id":"GMT+7"},{"en":"Open to selected work","id":"Terbuka untuk pekerjaan terpilih","badge":true}],"position":[{"label":{"en":"Role","id":"Peran"},"value":"Developer Technician"},{"label":{"en":"Posted to","id":"Ditempatkan di"},"value":"Kementerian BUMN"},{"label":{"en":"Via","id":"Melalui"},"value":"PT Sinergi Informatika Semen Indonesia"},{"label":{"en":"Since","id":"Sejak"},"value":"2023","num":true}]}', 1785514211);
+UPDATE content SET value = json_remove(value, '$."k.role"','$."v.role"','$."k.posted"','$."k.via"','$."k.since"','$."hero.avail"') WHERE key='i18n';
+UPDATE meta SET value = CAST(CAST(value AS INTEGER)+1 AS TEXT) WHERE key='version';

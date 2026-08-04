@@ -1,0 +1,7 @@
+# Copy to .dev.vars for local development (.dev.vars is gitignored).
+#
+# This is Cloudflare's documented Turnstile *test* secret key: it always
+# passes verification, so the contact form works locally without a real widget.
+# The matching test site key (1x00000000000000000000AA) is already in
+# public/index.html.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA

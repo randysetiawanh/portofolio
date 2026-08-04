@@ -1,0 +1,197 @@
+<title>Isometric variants — rancores.space</title>
+
+<style>
+:root{
+  --ink:#080C11; --panel:#0E141B; --rule:#1F2C39;
+  --dim:#6E8194; --text:#DCE5ED; --text-strong:#F4F8FC;
+  --structure:#3A7BFD; --signal:#FF7A18;
+  --ga:rgba(58,123,253,.055);
+  --gb:rgba(58,123,253,.11);
+  --gc:rgba(58,123,253,.16);
+  --so:rgba(255,122,24,.09);
+  --f:ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --m:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root[data-theme="light"]{
+  --ink:#E6EAEF; --panel:#F7F9FC; --rule:#B9C6D4;
+  --dim:#54667A; --text:#0F1821; --text-strong:#020608;
+  --structure:#1B52C9; --signal:#B34B07;
+  --ga:rgba(27,82,201,.075); --gb:rgba(27,82,201,.15); --gc:rgba(27,82,201,.22);
+  --so:rgba(179,75,7,.12);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--text);font:16px/1.6 var(--f)}
+.lbl{font-family:var(--m);font-size:.6875rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+header{position:sticky;top:0;z-index:5;display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap;
+  padding:1rem clamp(1rem,4vw,2.5rem);border-bottom:1px solid var(--rule);
+  background:color-mix(in srgb,var(--ink) 92%,transparent);backdrop-filter:blur(10px)}
+h1{margin:0;font-size:1.25rem;letter-spacing:-.01em;color:var(--text-strong)}
+header p{margin:0;color:var(--dim);font-size:.875rem;flex:1 1 22rem}
+.tog{display:flex;border:1px solid var(--rule);background:var(--panel);margin-left:auto}
+.tog button{background:none;border:0;cursor:pointer;padding:.4rem .7rem;font:inherit;
+  font-family:var(--m);font-size:.6875rem;letter-spacing:.12em;color:var(--dim)}
+.tog button[aria-pressed="true"]{background:var(--structure);color:#fff}
+main{padding:clamp(1rem,4vw,2.5rem);display:grid;gap:1.5rem;
+  grid-template-columns:repeat(auto-fit,minmax(350px,1fr));max-width:1500px;margin:0 auto}
+figure{margin:0;border:1px solid var(--rule);background:var(--panel);display:grid}
+figcaption{padding:.75rem .9rem;border-bottom:1px solid var(--rule);display:grid;gap:.25rem}
+figcaption b{font-size:.9375rem;color:var(--text-strong);font-weight:600}
+figcaption span{font-size:.8125rem;color:var(--dim);line-height:1.45}
+figcaption .pick{color:var(--signal);font-family:var(--m);font-size:.625rem;letter-spacing:.14em}
+.swatch{position:relative;min-height:290px;padding:1.25rem;display:grid;align-content:center;gap:.8rem;
+  background-color:var(--ink)}
+.swatch .h{font-size:1.5rem;line-height:1.1;letter-spacing:-.02em;color:var(--text-strong);font-weight:700}
+.swatch .card{border:1px solid var(--rule);background:var(--panel);padding:.7rem .8rem;
+  display:grid;gap:.3rem;max-width:20rem}
+.swatch .card b{font-size:.875rem;color:var(--text-strong);font-weight:600}
+.swatch .card i{font-style:normal;font-family:var(--m);font-size:.6875rem;color:var(--dim)}
+.swatch .dot{width:7px;height:7px;background:var(--signal);display:inline-block;margin-right:.4rem}
+
+/* ── 1 · plain isometric, for reference ───────────────────────────── */
+.i-plain{
+  background-image:
+    repeating-linear-gradient(30deg,var(--ga) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(-30deg,var(--ga) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(90deg,var(--ga) 0 1px,transparent 1px 44px);
+}
+/* ── 2 · major every third line, so the lattice gains scale ───────── */
+.i-major{
+  background-image:
+    repeating-linear-gradient(30deg,var(--gc) 0 1px,transparent 1px 132px),
+    repeating-linear-gradient(-30deg,var(--gc) 0 1px,transparent 1px 132px),
+    repeating-linear-gradient(90deg,var(--gc) 0 1px,transparent 1px 132px),
+    repeating-linear-gradient(30deg,var(--ga) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(-30deg,var(--ga) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(90deg,var(--ga) 0 1px,transparent 1px 44px);
+}
+/* ── 3 · the lattice reduced to its vertices ──────────────────────── */
+.i-dots{
+  background-image:
+    radial-gradient(var(--gc) 1.1px,transparent 1.2px),
+    radial-gradient(var(--gc) 1.1px,transparent 1.2px);
+  background-size:44px 76px;
+  background-position:0 0,22px 38px;
+}
+/* ── 4 · fades toward the top, like ground receding to a horizon ──── */
+.i-fade{
+  background-image:
+    repeating-linear-gradient(30deg,var(--gb) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(-30deg,var(--gb) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(90deg,var(--gb) 0 1px,transparent 1px 44px);
+  -webkit-mask-image:linear-gradient(to top,#000 15%,transparent 92%);
+  mask-image:linear-gradient(to top,#000 15%,transparent 92%);
+}
+/* ── 5 · one axis carries the signal colour ───────────────────────── */
+.i-two{
+  background-image:
+    repeating-linear-gradient(30deg,var(--gb) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(-30deg,var(--gb) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(90deg,var(--so) 0 1px,transparent 1px 44px);
+}
+/* ── 6 · filled faces — reads as stacked blocks ───────────────────── */
+.i-cubes{
+  background-image:
+    linear-gradient(30deg,var(--ga) 12%,transparent 12.5%,transparent 87%,var(--ga) 87.5%,var(--ga)),
+    linear-gradient(150deg,var(--ga) 12%,transparent 12.5%,transparent 87%,var(--ga) 87.5%,var(--ga)),
+    linear-gradient(30deg,var(--ga) 12%,transparent 12.5%,transparent 87%,var(--ga) 87.5%,var(--ga)),
+    linear-gradient(150deg,var(--ga) 12%,transparent 12.5%,transparent 87%,var(--ga) 87.5%,var(--ga)),
+    linear-gradient(60deg,var(--gb) 25%,transparent 25.5%,transparent 75%,var(--gb) 75%,var(--gb)),
+    linear-gradient(60deg,var(--gb) 25%,transparent 25.5%,transparent 75%,var(--gb) 75%,var(--gb));
+  background-size:72px 126px;
+  background-position:0 0,0 0,36px 63px,36px 63px,0 0,36px 63px;
+}
+/* ── 7 · board traces with vias — tiles seamlessly ────────────────── */
+.i-circuit{
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>\
+<g fill='none' stroke='%233A7BFD' stroke-opacity='.20' stroke-width='1'>\
+<path d='M0 20 H24 L34 30 H56 L66 20 H80'/>\
+<path d='M20 0 V24 L30 34 V56 L20 66 V80'/>\
+<path d='M0 60 H14 L24 50 H46 L56 60 H80'/>\
+<path d='M60 0 V14 L50 24 V46 L60 56 V80'/></g>\
+<g fill='%233A7BFD' fill-opacity='.30'>\
+<circle cx='34' cy='30' r='1.8'/><circle cx='24' cy='50' r='1.8'/>\
+<circle cx='56' cy='60' r='1.8'/><circle cx='50' cy='24' r='1.8'/></g></svg>");
+  background-size:80px 80px;
+}
+:root[data-theme="light"] .i-circuit{
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'>\
+<g fill='none' stroke='%231B52C9' stroke-opacity='.26' stroke-width='1'>\
+<path d='M0 20 H24 L34 30 H56 L66 20 H80'/>\
+<path d='M20 0 V24 L30 34 V56 L20 66 V80'/>\
+<path d='M0 60 H14 L24 50 H46 L56 60 H80'/>\
+<path d='M60 0 V14 L50 24 V46 L60 56 V80'/></g>\
+<g fill='%231B52C9' fill-opacity='.36'>\
+<circle cx='34' cy='30' r='1.8'/><circle cx='24' cy='50' r='1.8'/>\
+<circle cx='56' cy='60' r='1.8'/><circle cx='50' cy='24' r='1.8'/></g></svg>");
+}
+/* ── 8 · fine ruling with a heavier axis pair, like a scope screen ── */
+.i-scope{
+  background-image:
+    linear-gradient(var(--gc) 1px,transparent 1px),
+    linear-gradient(90deg,var(--gc) 1px,transparent 1px),
+    linear-gradient(var(--ga) 1px,transparent 1px),
+    linear-gradient(90deg,var(--ga) 1px,transparent 1px);
+  background-size:200px 200px,200px 200px,40px 40px,40px 40px;
+}
+</style>
+
+<header>
+  <h1>Isometric variants</h1>
+  <p>Eight more, weighted toward the direction you liked. Same palette, type and cards as the site — and both themes, since thin lines behave very differently on a light ground.</p>
+  <div class="tog" role="group" aria-label="Theme">
+    <button type="button" data-t="dark" aria-pressed="true">DARK</button>
+    <button type="button" data-t="light" aria-pressed="false">LIGHT</button>
+  </div>
+</header>
+
+<main id="grid"></main>
+
+<script>
+const PATTERNS = [
+  { cls:"i-plain", name:"Isometric — plain", pick:"WHAT YOU LIKED",
+    note:"The one from the last set, for reference. Three axes at 30°, all the same weight." },
+  { cls:"i-major", name:"Isometric — major lines",
+    note:"Every third line darkened. The lattice suddenly has scale, and the eye gets somewhere to rest instead of an even mesh. Closest thing to isometric drafting paper." },
+  { cls:"i-dots", name:"Isometric — vertices only",
+    note:"The same lattice reduced to its intersection points. Keeps the triangular rhythm, drops almost all the visual noise — by far the easiest to read long prose over." },
+  { cls:"i-fade", name:"Isometric — depth fade",
+    note:"Full strength at the foot of the screen, gone by the top. Reads as ground receding toward a horizon, and it solves the busyness problem without weakening the pattern where it shows." },
+  { cls:"i-two", name:"Isometric — signal axis",
+    note:"Two axes in structure blue, the vertical one in signal orange. Subtle two-tone that hints at a measured dimension. Bolder than it sounds at this opacity." },
+  { cls:"i-cubes", name:"Isometric — stacked blocks",
+    note:"Filled faces instead of lines, so the lattice resolves into 3D blocks. The most decorative option here — striking, and the one most likely to tire you out." },
+  { cls:"i-circuit", name:"Circuit traces",
+    note:"Board routing with vias — orthogonal runs, 45° corners, pads at the turns. Not isometric, but arguably the most on-subject pattern for someone who builds systems." },
+  { cls:"i-scope", name:"Instrument grid",
+    note:"Fine 40px ruling with a heavy division every 200px, like an oscilloscope or a plotter. Orthogonal, so unlike the isometric options it never fights the diagram's own right angles." },
+];
+
+document.getElementById("grid").innerHTML = PATTERNS.map(p => `
+  <figure>
+    <figcaption>
+      <b>${p.name}</b>
+      ${p.pick ? `<span class="pick">${p.pick}</span>` : ""}
+      <span>${p.note}</span>
+    </figcaption>
+    <div class="swatch ${p.cls}">
+      <span class="h">Register of systems</span>
+      <span class="lbl">07 &middot; Laravel 11.36.1 &middot; PostgreSQL</span>
+      <div class="card">
+        <b><span class="dot"></span>Executive Dashboard</b>
+        <i>laravel@11.36.1 &middot; in service 2025 &rarr; present</i>
+      </div>
+    </div>
+  </figure>`).join("");
+
+const root = document.documentElement;
+root.setAttribute("data-theme", "dark");
+document.querySelectorAll(".tog button").forEach(b => {
+  b.addEventListener("click", () => {
+    root.setAttribute("data-theme", b.dataset.t);
+    document.querySelectorAll(".tog button").forEach(o =>
+      o.setAttribute("aria-pressed", String(o === b)));
+  });
+});
+</script>

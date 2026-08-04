@@ -1,0 +1,5 @@
+.DS_Store
+*.map
+
+# 1.5 MB master; the optimised randy.jpg is what ships
+randy.png

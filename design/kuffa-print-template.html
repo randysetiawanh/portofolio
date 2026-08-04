@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Portofolio - Kuffa Fashion Store</title>
+<style>
+    @page {
+        size: A4 landscape;
+        margin: 0;
+    }
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+        color: #212529;
+        -webkit-print-color-adjust: exact;
+    }
+    .page {
+        width: 297mm;
+        height: 210mm;
+        page-break-after: always;
+        box-sizing: border-box;
+        padding: 12mm 15mm;
+        position: relative;
+        background-color: #ffffff;
+    }
+    
+    /* Top Meta Header */
+    .meta-bar {
+        display: table;
+        width: 100%;
+        border-bottom: 2px solid #111111;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+    .meta-item {
+        display: table-cell;
+        vertical-align: top;
+    }
+    .meta-label {
+        font-size: 8pt;
+        font-weight: bold;
+        color: #777777;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .meta-value {
+        font-size: 10pt;
+        font-weight: bold;
+        color: #111111;
+        margin-top: 2px;
+    }
+    
+    /* Main Layout */
+    .content-table {
+        display: table;
+        width: 100%;
+        height: calc(100% - 35mm);
+    }
+    .left-col {
+        display: table-cell;
+        width: 32%;
+        vertical-align: top;
+        padding-right: 15px;
+    }
+    .right-col {
+        display: table-cell;
+        width: 68%;
+        vertical-align: top;
+        padding-left: 5px;
+    }
+    
+    /* Section Boxes */
+    .box {
+        background: #f4f5f7;
+        padding: 10px 12px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    .box-title {
+        font-size: 9pt;
+        font-weight: bold;
+        color: #555;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .box-desc {
+        font-size: 8.5pt;
+        line-height: 1.35;
+        color: #333;
+    }
+    
+    /* Skills Pills */
+    .skills-list {
+        margin-top: 5px;
+    }
+    .skill-tag {
+        display: inline-block;
+        background: #111111;
+        color: #ffffff;
+        font-size: 7.5pt;
+        font-weight: bold;
+        padding: 3px 8px;
+        border-radius: 3px;
+        margin: 2px;
+        margin-bottom: 4px;
+    }
+    
+    /* Side Info Footer */
+    .author-info {
+        margin-top: 15px;
+        border-top: 1px solid #e0e0e0;
+        padding-top: 10px;
+    }
+    .author-name {
+        font-size: 11pt;
+        font-weight: bold;
+        color: #111;
+    }
+    .author-sub {
+        font-size: 8pt;
+        color: #666;
+        margin-bottom: 6px;
+    }
+    .contact-line {
+        font-size: 7.5pt;
+        color: #444;
+        margin-bottom: 2px;
+    }
+    
+    /* Image Showcase Grid */
+    .img-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        padding: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 10px;
+    }
+    .img-card img {
+        max-width: 100%;
+        max-height: 80mm;
+        width: auto;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+    .img-caption {
+        font-size: 8pt;
+        font-weight: bold;
+        color: #555;
+        margin-top: 4px;
+        text-align: center;
+    }
+</style>
+</head>
+<body>
+
+    <!-- PAGE 1: Overview & Primary UI -->
+    <div class="page">
+        <!-- Top Meta Bar -->
+        <div class="meta-bar">
+            <div class="meta-item" style="width: 15%;">
+                <div class="meta-label">Framework</div>
+                <div class="meta-value">DJANGO 3.1</div>
+            </div>
+            <div class="meta-item" style="width: 25%;">
+                <div class="meta-label">Category</div>
+                <div class="meta-value">E-COMMERCE / FASHION</div>
+            </div>
+            <div class="meta-item" style="width: 15%;">
+                <div class="meta-label">Year</div>
+                <div class="meta-value">2022</div>
+            </div>
+            <div class="meta-item" style="width: 20%;">
+                <div class="meta-label">Role</div>
+                <div class="meta-value">Fullstack Developer</div>
+            </div>
+            <div class="meta-item" style="width: 25%;">
+                <div class="meta-label">Project</div>
+                <div class="meta-value">Kuffa Fashion Store</div>
+            </div>
+        </div>
+
+        <div class="content-table">
+            <!-- Left Column: Description & Metadata -->
+            <div class="left-col">
+                <div class="box">
+                    <div class="box-title">Project Title</div>
+                    <div class="box-desc" style="font-size: 10.5pt; font-weight: bold; color: #111;">
+                        Kuffa - Fashion Store Web Application
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div class="box-title">Project Description</div>
+                    <div class="box-desc">
+                        Kuffa is a fashion e-commerce web application developed as a final thesis project at STMIK Jayakarta. The goal was to build a functional online fashion store. My solution involved developing the platform using Python 3.9 and the Django Framework version 3.1. The completed project features a user-friendly dashboard, product detail pages, and a secure payment gateway integration using Midtrans to process online transactions effectively.
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div class="box-title">Skills & Deliverables</div>
+                    <div class="skills-list">
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">Django</span>
+                        <span class="skill-tag">Payment Gateway (Midtrans)</span>
+                        <span class="skill-tag">E-commerce Development</span>
+                        <span class="skill-tag">Web Development</span>
+                    </div>
+                </div>
+
+                <div class="author-info">
+                    <div class="author-name">Randy Setiawan Hoesin</div>
+                    <div class="author-sub">Graduated STMIK Jayakarta (2022)</div>
+                    <div class="contact-line">📧 randysetiawanh@gmail.com</div>
+                    <div class="contact-line">📱 +62-821-2221-5391</div>
+                    <div class="contact-line">🔗 github.com/randysetiawanh</div>
+                    <div class="contact-line">🔗 linkedin.com/in/randy-setiawan-hoesin/</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Images 1 & 2 -->
+            <div class="right-col">
+                <div class="img-card">
+                    <img src="input_file_10.png" alt="Kuffa Homepage Header Banner">
+                    <div class="img-caption">Landing Page Header Banner</div>
+                </div>
+                <div class="img-card">
+                    <img src="input_file_11.png" alt="Product Detail View">
+                    <div class="img-caption">Product Detail View & Add to Cart Feature</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: Catalog & Payment Gateway -->
+    <div class="page">
+        <!-- Top Meta Bar -->
+        <div class="meta-bar">
+            <div class="meta-item" style="width: 25%;">
+                <div class="meta-label">Payment Gateway</div>
+                <div class="meta-value">MIDTRANS INTEGRATION</div>
+            </div>
+            <div class="meta-item" style="width: 25%;">
+                <div class="meta-label">Architecture</div>
+                <div class="meta-value">RESTful API & SMTP</div>
+            </div>
+            <div class="meta-item" style="width: 25%;">
+                <div class="meta-label">Institution</div>
+                <div class="meta-value">STMIK JAYAKARTA</div>
+            </div>
+            <div class="meta-item" style="width: 25%;">
+                <div class="meta-label">Repository</div>
+                <div class="meta-value">github.com/randysetiawanh</div>
+            </div>
+        </div>
+
+        <div class="content-table">
+            <!-- Left Column: Order Flow Info -->
+            <div class="left-col">
+                <div class="box">
+                    <div class="box-title">Order & Payment Automation</div>
+                    <div class="box-desc">
+                        The platform provides an end-to-end automated e-commerce transaction flow:
+                        <ul style="padding-left: 15px; margin-top: 5px; margin-bottom: 0;">
+                            <li>Interactive Product Catalog & Shopping Cart</li>
+                            <li>Automated Shipping Information Checkout</li>
+                            <li>Midtrans Snap Pop-up integration supporting QRIS, Bank Virtual Accounts, & Credit Cards</li>
+                            <li>Automated Email Confirmations via Gmail SMTP upon successful payment</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div class="box-title">Technical Highlights</div>
+                    <div class="box-desc">
+                        • Backend: Python 3.9, Django 3.1<br>
+                        • Frontend: Responsive HTML5/CSS3 (H-Code Themezaa Template)<br>
+                        • Database: Relational DB with Django ORM Models<br>
+                        • Integration: Midtrans Payment API
+                    </div>
+                </div>
+
+                <div class="author-info">
+                    <div class="author-name">Randy Setiawan Hoesin</div>
+                    <div class="contact-line">Fullstack Developer Portfolio</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Images 3 & 4 -->
+            <div class="right-col">
+                <div class="img-card">
+                    <img src="input_file_12.png" alt="New Arrivals Section">
+                    <div class="img-caption">New Arrivals Section & Product Showcase</div>
+                </div>
+                <div class="img-card">
+                    <img src="input_file_13.png" alt="Midtrans Payment Window">
+                    <div class="img-caption">Integrated Midtrans Payment Gateway (Snap Pop-up)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

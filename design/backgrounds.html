@@ -1,0 +1,165 @@
+<title>Background patterns — rancores.space</title>
+
+<style>
+:root{
+  --ink:#080C11; --panel:#0E141B; --panel-2:#131C26;
+  --rule:#1F2C39; --rule-soft:#17212B;
+  --dim:#6E8194; --text:#DCE5ED; --text-strong:#F4F8FC;
+  --structure:#3A7BFD; --signal:#FF7A18;
+  --ga:rgba(58,123,253,.055);   /* minor line — same value the site uses today */
+  --gb:rgba(58,123,253,.11);    /* major line */
+  --f:ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --m:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root[data-theme="light"]{
+  --ink:#E6EAEF; --panel:#F7F9FC; --panel-2:#FFFFFF;
+  --rule:#B9C6D4; --rule-soft:#D3DCE6;
+  --dim:#54667A; --text:#0F1821; --text-strong:#020608;
+  --structure:#1B52C9; --signal:#B34B07;
+  --ga:rgba(27,82,201,.075); --gb:rgba(27,82,201,.15);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--text);font:16px/1.6 var(--f)}
+.lbl{font-family:var(--m);font-size:.6875rem;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+
+header{
+  position:sticky;top:0;z-index:5;display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap;
+  padding:1rem clamp(1rem,4vw,2.5rem);border-bottom:1px solid var(--rule);
+  background:color-mix(in srgb,var(--ink) 92%,transparent);backdrop-filter:blur(10px);
+}
+h1{margin:0;font-size:1.25rem;letter-spacing:-.01em;color:var(--text-strong)}
+header p{margin:0;color:var(--dim);font-size:.875rem;flex:1 1 22rem}
+.tog{display:flex;border:1px solid var(--rule);background:var(--panel);margin-left:auto}
+.tog button{
+  background:none;border:0;cursor:pointer;padding:.4rem .7rem;font:inherit;
+  font-family:var(--m);font-size:.6875rem;letter-spacing:.12em;color:var(--dim);
+}
+.tog button[aria-pressed="true"]{background:var(--structure);color:#fff}
+
+main{padding:clamp(1rem,4vw,2.5rem);display:grid;gap:1.5rem;
+  grid-template-columns:repeat(auto-fit,minmax(340px,1fr));max-width:1500px;margin:0 auto}
+
+figure{margin:0;border:1px solid var(--rule);background:var(--panel);display:grid}
+figcaption{padding:.75rem .9rem;border-bottom:1px solid var(--rule);display:grid;gap:.25rem}
+figcaption b{font-size:.9375rem;color:var(--text-strong);font-weight:600}
+figcaption span{font-size:.8125rem;color:var(--dim);line-height:1.45}
+figcaption .now{color:var(--signal);font-family:var(--m);font-size:.625rem;letter-spacing:.14em}
+
+/* the swatch carries the pattern; sample content sits on top so legibility
+   is judged the way a visitor would actually meet it */
+.swatch{position:relative;min-height:260px;padding:1.25rem;display:grid;align-content:center;gap:.8rem;
+  background-color:var(--ink)}
+.swatch .h{font-size:1.5rem;line-height:1.1;letter-spacing:-.02em;color:var(--text-strong);font-weight:700}
+.swatch .card{
+  border:1px solid var(--rule);background:var(--panel);padding:.7rem .8rem;display:grid;gap:.3rem;
+  max-width:20rem;
+}
+.swatch .card b{font-size:.875rem;color:var(--text-strong);font-weight:600}
+.swatch .card i{font-style:normal;font-family:var(--m);font-size:.6875rem;color:var(--dim)}
+.swatch .dot{width:7px;height:7px;background:var(--signal);display:inline-block;margin-right:.4rem}
+
+/* ── the patterns ──────────────────────────────────────────────────── */
+.p-grid{
+  background-image:
+    linear-gradient(var(--ga) 1px,transparent 1px),
+    linear-gradient(90deg,var(--ga) 1px,transparent 1px);
+  background-size:64px 64px;
+}
+.p-graph{
+  background-image:
+    linear-gradient(var(--ga) 1px,transparent 1px),
+    linear-gradient(90deg,var(--ga) 1px,transparent 1px),
+    linear-gradient(var(--gb) 1px,transparent 1px),
+    linear-gradient(90deg,var(--gb) 1px,transparent 1px);
+  background-size:16px 16px,16px 16px,80px 80px,80px 80px;
+}
+.p-dots{
+  background-image:radial-gradient(var(--gb) 1.1px,transparent 1.2px);
+  background-size:26px 26px;
+}
+.p-cross{
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>\
+<path d='M32 26.5v11M26.5 32h11' stroke='%233A7BFD' stroke-opacity='.30' stroke-width='1'/></svg>");
+  background-size:64px 64px;
+}
+:root[data-theme="light"] .p-cross{
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'>\
+<path d='M32 26.5v11M26.5 32h11' stroke='%231B52C9' stroke-opacity='.38' stroke-width='1'/></svg>");
+}
+.p-iso{
+  background-image:
+    repeating-linear-gradient(30deg,var(--ga) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(-30deg,var(--ga) 0 1px,transparent 1px 44px),
+    repeating-linear-gradient(90deg,var(--ga) 0 1px,transparent 1px 44px);
+}
+.p-rules{
+  background-image:repeating-linear-gradient(var(--ga) 0 1px,transparent 1px 26px);
+}
+.p-hatch{
+  background-image:repeating-linear-gradient(45deg,var(--ga) 0 1px,transparent 1px 11px);
+}
+.p-none{background-image:none}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <h1>Background patterns</h1>
+  <p>Rendered with the site's real palette, type and cards — a pattern only reads honestly with content on top of it.</p>
+  <div class="tog" role="group" aria-label="Theme">
+    <button type="button" data-t="dark" aria-pressed="true">DARK</button>
+    <button type="button" data-t="light" aria-pressed="false">LIGHT</button>
+  </div>
+</header>
+
+<main id="grid"></main>
+
+<script>
+const PATTERNS = [
+  { cls:"p-grid", name:"Square grid", now:true,
+    note:"What the site uses now. Even, neutral, unobtrusive — reads as plain graph paper and never competes with content." },
+  { cls:"p-graph", name:"Engineering graph paper",
+    note:"Fine 16px ruling with a heavier line every 80px. Closest to real drafting paper, and it gives the page an implied scale the flat grid does not." },
+  { cls:"p-dots", name:"Dot grid",
+    note:"Intersections only. Much quieter behind dense text, and it echoes the node markers already used in the stack list." },
+  { cls:"p-cross", name:"Registration crosses",
+    note:"A small crosshair at every intersection — the same mark used on the sheet corners and the portrait plate. Most specific to this design's own vocabulary." },
+  { cls:"p-iso", name:"Isometric",
+    note:"Three axes at 30°. Reads as 3D drafting and is the most distinctive, but it is also the busiest and fights the orthogonal diagram lines." },
+  { cls:"p-rules", name:"Ruled lines",
+    note:"Horizontal ruling only, like a ledger or a register book. Quiet, and it suits the tabular sections — but the diagram loses its grid backing." },
+  { cls:"p-hatch", name:"Section hatch",
+    note:"Fine 45° hatching, the convention for a cut surface in engineering drawings. Strong texture; likely too active behind long prose." },
+  { cls:"p-none", name:"No pattern",
+    note:"Flat ground. Makes the bordered panels do all the structural work — cleaner, but the drafting-sheet idea largely disappears." },
+];
+
+document.getElementById("grid").innerHTML = PATTERNS.map(p => `
+  <figure>
+    <figcaption>
+      <b>${p.name}</b>
+      ${p.now ? '<span class="now">CURRENTLY LIVE</span>' : ""}
+      <span>${p.note}</span>
+    </figcaption>
+    <div class="swatch ${p.cls}">
+      <span class="h">Register of systems</span>
+      <span class="lbl">07 &middot; Laravel 11.36.1 &middot; PostgreSQL</span>
+      <div class="card">
+        <b><span class="dot"></span>Executive Dashboard</b>
+        <i>laravel@11.36.1 &middot; in service 2025 &rarr; present</i>
+      </div>
+    </div>
+  </figure>`).join("");
+
+const root = document.documentElement;
+root.setAttribute("data-theme", "dark");
+document.querySelectorAll(".tog button").forEach(b => {
+  b.addEventListener("click", () => {
+    root.setAttribute("data-theme", b.dataset.t);
+    document.querySelectorAll(".tog button").forEach(o =>
+      o.setAttribute("aria-pressed", String(o === b)));
+  });
+});
+</script>

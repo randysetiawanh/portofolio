@@ -1,0 +1,66 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "randysetiawan-portfolio",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-29",
+
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+
+    // Static-first: the Worker only wakes for /api/*. Every other request is
+    // served straight from the edge, so page views cost no Worker invocation
+    // and the 100k/day free allowance is spent on real API calls only.
+    // "/" is served by the Worker so content can be injected from D1; every
+    // other asset (fonts, images, PDFs) still goes straight from the edge.
+    "run_worker_first": ["/", "/api/*", "/admin", "/admin/", "/m/*"]
+  },
+
+  // SQLite-backed Durable Object. The free plan allows 100,000 row writes/day
+  // here, against 1,000 writes/day for KV — a per-view counter would exhaust
+  // the KV allowance at 1,000 visits.
+  "durable_objects": {
+    "bindings": [{ "name": "COUNTER", "class_name": "ViewCounter" }]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["ViewCounter"]
+    }
+  ],
+
+  "d1_databases": [
+    {
+      "binding": "CONTENT",
+      "database_name": "portfolio-content",
+      "database_id": "950149e4-2a6d-4826-9bc9-eef834d9467a"
+    }
+  ],
+
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "portfolio-media" }
+  ],
+
+  "observability": {
+    "enabled": true
+  },
+
+  "vars": {
+    // The Turnstile *site* key is public and lives in public/index.html, so it
+    // is deliberately not duplicated here. Only the secret key is a secret:
+    //   wrangler secret put TURNSTILE_SECRET
+    "CONTACT_TO": "randysetiawanh@gmail.com",
+    "CONTACT_FROM": "form@rancores.space",
+
+    // Until BOTH are filled in, /admin refuses every request. Fail closed is
+    // the point: no window where the editor is reachable without Access.
+    "ACCESS_TEAM_DOMAIN": "randysetiawanh.cloudflareaccess.com",
+    "ACCESS_AUD": "d02466a04a8f7ab80401a763b192d90aca0b1f5018bff2dfd86e10a209b7dfe5"
+  },
+
+  // Set after Email Routing is enabled on the zone — see README.
+  "send_email": [
+    { "name": "MAILER", "destination_address": "randysetiawanh@gmail.com" }
+  ]
+}

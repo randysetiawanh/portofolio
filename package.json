@@ -1,0 +1,19 @@
+{
+  "name": "randysetiawan-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal portfolio of Randy Setiawan Hoesin, served from Cloudflare Workers.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types",
+    "tail": "wrangler tail",
+    "check": "node scripts/check-shell.mjs",
+    "predeploy": "node scripts/check-shell.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "wrangler": "^4.112.0"
+  }
+}
