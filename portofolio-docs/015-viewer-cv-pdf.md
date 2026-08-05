@@ -53,6 +53,48 @@ dibatalkan justru karena alasan di atas.
 Catatan versi: PDF.js v6 membuang semua bentuk singkat. Hanya
 `getDocument({url: <string absolut>})` yang bekerja.
 
+## Wajib legacy build, bukan modern
+
+Versi ter-vendor: **6.2.108**, file `pdf.legacy.min.mjs` dan
+`pdf.worker.legacy.min.mjs`.
+
+Build **modern** dari versi ini memanggil `Map.prototype.getOrInsertComputed`
+(16× di pustaka, 15× di worker). Itu proposal TC39 yang sejauh ini baru dikirim
+Firefox — Safari tidak punya, Chrome stabil juga belum. Akibatnya di iPhone
+viewer mati dengan:
+
+```
+RENDERER FAULT — this.#ra.getOrInsertComputed is not a function
+```
+
+Build **legacy** membawa polyfill core-js untuk method itu:
+
+```js
+n({target:"Map",proto:!0,real:!0,forced:a},{getOrInsertComputed:function …})
+```
+
+Nama filenya sengaja memuat kata `legacy` supaya tidak ada yang menukarnya balik
+ke build modern tanpa sadar. Kegagalannya senyap di CI mana pun: gate lolos,
+desktop Chrome jalan, dan hanya Safari yang mati.
+
+Ongkosnya 512 KB + 1.31 MB, naik ~110 KB dari build modern. Tetap lazy-load.
+
+## Jebakan cache saat deploy aset baru
+
+Memverifikasi URL aset baru **beberapa detik setelah deploy** bisa menanam
+respons 404 di cache edge Cloudflare: request datang sebelum aset menyebar,
+dapat halaman 404, dan respons itu ikut ter-cache untuk URL tersebut.
+
+Gejalanya menipu — URL polos mengembalikan halaman 404 sementara file yang sama
+dengan `?v=1` mengembalikan isi yang benar.
+
+Cara memeriksa dengan aman: pakai `https://randysetiawan-portfolio.randysetiawanh.workers.dev/<path>`
+dulu, yang lepas dari cache zone. Kalau di sana benar, deploy-nya berhasil dan
+yang tersisa cuma menunggu cache zone lepas.
+
+Token deploy yang dipakai sekarang **tidak punya izin Cache Purge**, jadi purge
+lewat API tidak tersedia.
+
 ## Panel inline yang dibuang
 
 Semula ada `#cvpane` — panel CV yang selalu tampil di kolom kanan section
@@ -75,6 +117,11 @@ bidang abu-abu kosong di bawah baris terakhir.
 
 - **R-128** — Sheet CV merender ke canvas dengan PDF.js. Jangan ganti dengan
   `<iframe>`: Safari menolak dan Android Chrome mengunduh.
+- **R-134** — Selalu pakai **legacy build** PDF.js. Build modern memanggil
+  `Map.prototype.getOrInsertComputed` yang tidak ada di Safari. Nama file wajib
+  memuat `legacy`.
+- **R-135** — Jangan memverifikasi URL aset baru dalam hitungan detik setelah
+  deploy; itu menanam 404 di cache edge. Cek lewat `*.workers.dev` lebih dulu.
 - **R-129** — Runtime PDF.js hanya boleh dimuat lewat `import()` dinamis saat
   dibutuhkan, tidak pernah sebagai `<script>` di shell.
 - **R-130** — Kegagalan render wajib menampilkan pesan sebenarnya plus tautan
