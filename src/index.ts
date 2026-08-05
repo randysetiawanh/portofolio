@@ -107,7 +107,6 @@ async function verifyTurnstile(secret: string, token: string, ip: string | null)
 const SLOT = "<!--content-slot-->";
 const SEO_START = "<!--seo-start-->";
 const SEO_END = "<!--seo-end-->";
-let shellCache: string | null = null;
 
 /** Attribute-safe. Content is authored in /admin, so an unescaped quote here
  *  would end the attribute and put the rest of the string into the markup. */
@@ -146,11 +145,12 @@ function seoBlock(seo: Seo | undefined, fallback: string): string {
 }
 
 async function renderPage(request: Request, env: Env): Promise<Response> {
-  if (shellCache === null) {
-    const res = await env.ASSETS.fetch(new URL("/index.html", request.url));
-    if (!res.ok) return res;
-    shellCache = await res.text();
-  }
+  // Fetched per request, never memoized: an isolate that boots while a deploy
+  // is still propagating would freeze the stale shell for its whole lifetime
+  // (it did, 2026-08-05). The asset fetch is an edge-cached internal read.
+  const res = await env.ASSETS.fetch(new URL("/index.html", request.url));
+  if (!res.ok) return res;
+  const shellCache = await res.text();
   const { version, data } = await readAll(env.CONTENT);
 
   // `<` is escaped so a `</script>` inside any content string cannot close
@@ -191,7 +191,9 @@ async function renderPage(request: Request, env: Env): Promise<Response> {
   return new Response(html, {
     headers: {
       "content-type": "text/html; charset=utf-8",
-      "cache-control": "public, max-age=0, must-revalidate",
+      // no-store, not max-age=0: corporate proxies have been seen serving a
+      // stale copy of this page despite must-revalidate (2026-08-05).
+      "cache-control": "private, no-store",
       "x-content-version": version,
     },
   });
