@@ -27,6 +27,7 @@ ditulis di README publik.
 | [012-kebijakan-disclosure.md](012-kebijakan-disclosure.md) | Aturan penyensoran angka operasional |
 | [013-utang-teknis.md](013-utang-teknis.md) | Yang belum beres, beserta risikonya |
 | [014-path-layar-sempit.md](014-path-layar-sempit.md) | Gantt jadi batang durasi di bawah 820px, dan cara preview tanpa deploy |
+| [015-viewer-cv-pdf.md](015-viewer-cv-pdf.md) | Sheet CV PDF.js, kenapa bukan iframe, dan panel inline yang dibuang |
 
 ## Aturan folder ini
 

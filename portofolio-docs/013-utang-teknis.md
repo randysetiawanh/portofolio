@@ -3,13 +3,24 @@
 Daftar hal yang belum beres per 4 Agustus 2026, diurutkan dari yang paling
 berisiko. Bukan backlog fitur — ini yang sudah diketahui bermasalah.
 
-## 1 · Tidak ada remote git
+## 1 · Deploy dari dua tempat tanpa git di tengahnya
 
-Repo ini satu commit lokal di branch `main`, tanpa `origin`. Kalau VPS-nya
-hilang, project ini hilang seluruhnya — termasuk seluruh riwayat migrasi konten
-yang merupakan satu-satunya jejak editorial situs.
+`origin` sudah tersambung ke `github.com/randysetiawanh/portofolio` (5 Agustus
+2026), jadi risiko kehilangan repo sudah lewat. Yang tersisa lebih halus dan
+sudah sempat menggigit.
 
-Ini risiko terbesar di daftar, dan yang paling murah diperbaiki.
+Pada 5 Agustus 2026 laptop dan VPS sama-sama men-deploy ke Worker yang sama.
+Laptop bercabang dari commit lama, jadi deploy-nya mengunggah pohon yang tidak
+tahu perubahan VPS ada — dan tiga perbaikan yang sudah tayang **hilang dari
+produksi tanpa error apa pun**. Ketahuan hanya karena bug yang sudah diperbaiki
+muncul lagi.
+
+Yang bikin ini mungkin: perubahan di-deploy sebelum masuk git. Selama itu terjadi,
+produksi bisa lebih maju daripada semua branch sekaligus, dan tidak ada jalan
+rollback.
+
+**Aturannya sekarang: commit dulu, baru deploy.** Sebelum `npm run deploy`,
+pastikan `git status` bersih dan branchnya sudah sinkron dengan `origin/main`.
 
 ## 2 · Logika Worker tidak punya tes
 

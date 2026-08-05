@@ -70,9 +70,20 @@ Cache-nya **per-isolate**, bukan global (`src/content.ts:22`):
 - `readAll(db, true)` melewati cache. Dipakai admin supaya editor selalu memuat
   keadaan terbaru.
 
-Shell HTML juga di-cache per-isolate (`shellCache`, `src/index.ts:110`) tanpa
-TTL sama sekali. Aman karena deploy melahirkan isolate baru. Kalau suatu saat
-shell perlu berubah tanpa deploy, ini yang pertama harus dibongkar.
+Shell HTML **tidak** di-cache. Dulu ada `shellCache` per-isolate tanpa TTL,
+dengan asumsi deploy selalu melahirkan isolate baru. Asumsi itu salah dan
+terbukti salah pada 5 Agustus 2026: isolate yang boot **saat deploy masih
+menyebar** menangkap shell lama dan membekukannya seumur hidup isolate itu,
+sehingga sebagian pengunjung terus mendapat halaman basi lama setelah deploy
+selesai.
+
+Sekarang `renderPage()` mengambil shell lewat `env.ASSETS.fetch()` di setiap
+request. Itu pembacaan internal yang sudah di-cache edge, jadi ongkosnya kecil —
+jauh lebih kecil daripada halaman basi yang tidak bisa dijelaskan.
+
+Header halaman juga berubah jadi `private, no-store`, bukan
+`public, max-age=0, must-revalidate`, karena proxy korporat terbukti menyajikan
+salinan basi meski ada `must-revalidate`.
 
 ## Injeksi ke shell
 
@@ -115,3 +126,7 @@ console — tidak melempar 500.
 - **R-016** — Payload yang disuntik ke halaman harus tetap meng-escape `<`.
 - **R-017** — Jangan naikkan TTL cache di atas 10 detik tanpa alasan. Editor
   menjanjikan "live in a few seconds" ke pemakainya.
+- **R-018** — Shell tidak boleh di-memoize di level modul. Isolate yang boot
+  saat deploy sedang menyebar akan membekukan versi lama selamanya.
+- **R-019** — Header halaman tetap `private, no-store`. Jangan diturunkan jadi
+  `max-age=0, must-revalidate`; proxy korporat mengabaikannya.

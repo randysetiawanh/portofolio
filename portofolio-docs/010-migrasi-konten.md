@@ -29,6 +29,8 @@ maksud perubahannya.
 | `0011_cv_sync` | Menyelaraskan situs dengan CV bertanggal 3 Agustus 2026 |
 | `0012_cv_upload` | CV terbit di R2 dan ditautkan; chip Infrastructure dipecah |
 | `0013_seo` | `title`, `description`, kartu link preview keluar dari shell |
+| `0014_pdf_viewer` | Baris CV berhenti memaksa unduh; label jadi dwibahasa `{en,id}`, flag `viewer` membuka sheet PDF di halaman |
+| `0015_cv_thumb` | Thumbnail CV (`thumb`) untuk baris viewer |
 
 ## Konvensi
 
@@ -46,14 +48,33 @@ tidak akan pernah dirender lagi — tapi admin masih menampilkan field untuknya.
 **Field yang mengedit sesuatu yang tidak pernah tampil itu membohongi
 pemakainya.** Buang kuncinya di migration yang sama dengan pemindahannya.
 
-## Menjalankan
+## Menjalankan — baca ini dulu
+
+**Jangan pernah menjalankan `d1 migrations apply --remote` di database produksi.**
+
+Riwayat migration database ini tidak dilacak di sisi remote. Perintah itu akan
+memutar ulang seed lama di atas konten yang sudah diedit lewat `/admin`, dan
+editan `/admin` tidak punya jejak di mana pun — hilangnya permanen.
+
+Yang benar, satu file pada satu waktu:
+
+```bash
+npx wrangler d1 execute portfolio-content --remote --file migrations/0016_xxx.sql
+```
+
+Untuk database lokal, `apply` masih aman:
 
 ```bash
 npx wrangler d1 migrations apply portfolio-content --local
-npx wrangler d1 migrations apply portfolio-content --remote
 ```
 
 Nama database ada di `wrangler.jsonc` (binding `CONTENT`).
+
+Konsekuensi lain dari fakta yang sama: migration yang menyentuh section yang
+sering diedit di `/admin` (`contact`, `identity`, `seo`) harus ditulis terhadap
+**nilai live yang dibaca saat itu**, bukan terhadap nilai di migration
+sebelumnya. `0014_pdf_viewer` melakukannya dan mencatat apa saja yang ternyata
+sudah berubah lewat `/admin` — href WhatsApp, label LinkedIn, URL Upwork.
 
 ## Rules
 
@@ -67,7 +88,12 @@ Nama database ada di `wrangler.jsonc` (binding `CONTENT`).
 - **R-097** — Migration tidak pernah di-edit setelah diterapkan. Perubahan
   berikutnya jadi file baru.
 - **R-098** — Penomoran empat digit berurutan, dengan slug pendek yang
-  menjelaskan maksud: `0014_<slug>.sql`.
+  menjelaskan maksud. Nomor terpakai terakhir: `0015`.
+- **R-100** — Jangan pernah `d1 migrations apply --remote` di produksi. Pakai
+  `d1 execute --remote --file <satu file>`.
+- **R-101** — Migration yang menyentuh section yang bisa diedit di `/admin`
+  ditulis terhadap nilai live yang dibaca saat itu, dan mencatat perbedaan yang
+  ditemukan.
 - **R-099** — Kalau sebuah editan di `/admin` ternyata penting untuk dijaga
   (misalnya menghasilkan struktur baru), tulis ulang jadi migration supaya
   environment lain bisa menyusul.
