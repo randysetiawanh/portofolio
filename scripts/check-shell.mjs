@@ -52,6 +52,9 @@ check("theme bootstrap in <head>", at("localStorage.getItem(\"theme\")") < at("<
 check("dark is the base (no OS query)", !html.includes("prefers-color-scheme"));
 check("reduced motion still honoured", html.includes("prefers-reduced-motion"));
 
+/* static dialog chrome the CV contact row opens into */
+check("one pdf viewer dialog", count('id="pdfview"') === 1, `found ${count('id="pdfview"')}`);
+
 /* no stray CSS rendering as text: the body must contain no bare rule blocks */
 const body = html.slice(at("<body>"));
 const bodyNoScripts = body.replace(/<script>[\s\S]*?<\/script>/g, "");

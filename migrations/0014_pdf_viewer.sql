@@ -1,0 +1,15 @@
+-- The CV row stops forcing a download. Its label becomes bilingual
+-- ("See PDF" / "Lihat PDF") and the new `viewer` flag makes the shell open
+-- the document in the in-page PDF sheet; the download itself moved into that
+-- sheet's title bar. A shell older than this change ignores both and falls
+-- back to a plain link, so the deploy order is shell first, content second.
+--
+-- Written against the LIVE contact value (read 2026-08-05), which carries
+-- /admin edits never recorded here: the WhatsApp href with "+", the LinkedIn
+-- label as a full name, the Upwork URL without "~". Only the CV row changed.
+--
+-- NB: this database's migration history is not tracked remotely — apply with
+--   wrangler d1 execute portfolio-content --remote --file migrations/0014_pdf_viewer.sql
+-- Running `d1 migrations apply --remote` would replay old seeds over live
+-- content edited through /admin.
+INSERT OR REPLACE INTO content (key, value, updated_at) VALUES ('contact', '[{"en":"Email","id":"Email","value":"randysetiawanh@gmail.com","href":"mailto:randysetiawanh@gmail.com"},{"en":"WhatsApp","id":"WhatsApp","value":"+62 821 2221 5391","num":true,"href":"https://wa.me/+6282122215391"},{"en":"LinkedIn","id":"LinkedIn","value":"Randy Setiawan Hoesin","href":"https://www.linkedin.com/in/randy-setiawan-hoesin/"},{"en":"Upwork","id":"Upwork","value":"Hire through Upwork","href":"https://www.upwork.com/freelancers/randysetiawanh","accent":true},{"en":"GitHub","id":"GitHub","value":"randysetiawanh","href":"https://github.com/randysetiawanh"},{"en":"Curriculum vitae","id":"Curriculum vitae","value":{"en":"See PDF","id":"Lihat PDF"},"href":"/m/cv/randy-setiawan-hoesin-cv.pdf","viewer":true,"accent":true}]', 1785918171);
