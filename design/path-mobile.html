@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Path — arah desain mobile</title>
+
+<style>
+@font-face{font-family:'Archivo';src:url('/fonts/archivo-var.woff2') format('woff2-variations');
+  font-weight:100 900;font-display:swap}
+@font-face{font-family:'Plex Mono';src:url('/fonts/plexmono-400.woff2') format('woff2');
+  font-weight:400;font-display:swap}
+@font-face{font-family:'Plex Mono';src:url('/fonts/plexmono-500.woff2') format('woff2');
+  font-weight:500;font-display:swap}
+
+:root{
+  --ink:#080C11; --panel:#0E141B; --panel-2:#131C26;
+  --rule:#1F2C39; --rule-soft:#17212B;
+  --dim:#6E8194; --text:#DCE5ED; --text-strong:#F4F8FC;
+  --structure:#3A7BFD; --signal:#FF7A18;
+  --live:#3DC98D; --idle:#8C99A6;
+  --sheet:1px solid var(--rule);
+  --f-display:'Archivo',ui-sans-serif,system-ui,sans-serif;
+  --f-mono:'Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--ink);color:var(--text);
+  font-family:var(--f-display);font-size:16px;line-height:1.5;
+  background-image:
+    repeating-linear-gradient(90deg,rgba(58,123,253,.055) 0 1px,transparent 1px 60px),
+    repeating-linear-gradient(0deg,rgba(58,123,253,.055) 0 1px,transparent 1px 60px);
+}
+.wrap{max-width:520px;margin:0 auto;padding:1.25rem 1rem 4rem}
+
+.lbl{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim)}
+
+.opt{margin:0 0 3.5rem}
+.opt > header{border-bottom:2px solid var(--signal);padding-bottom:.5rem;margin-bottom:.35rem}
+.opt > header .tag{font-family:var(--f-mono);font-size:.6875rem;letter-spacing:.18em;
+  color:var(--signal);text-transform:uppercase}
+.opt > header h2{margin:.2rem 0 0;font-size:1.375rem;
+  font-variation-settings:'wdth' 104,'wght' 700;color:var(--text-strong);letter-spacing:-.015em}
+.opt > .why{font-size:.8125rem;color:var(--dim);margin:.55rem 0 1.1rem;line-height:1.5}
+.opt > .why b{color:var(--text);font-weight:400}
+
+.sheet{border:var(--sheet);background:var(--panel);padding:1rem .9rem}
+.grp-h{display:block;margin:0 0 .75rem}
+.grp + .grp{margin-top:1.6rem;padding-top:1.2rem;border-top:1px dashed var(--rule-soft)}
+
+.mark{
+  position:relative;width:30px;height:30px;flex:none;overflow:hidden;
+  border:1px solid var(--rule);background:var(--panel-2);
+  display:grid;place-items:center;color:var(--dim);
+}
+.mark i{font-family:var(--f-mono);font-size:.5625rem;font-style:normal}
+.mark img{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);
+  object-fit:contain;opacity:0;transition:opacity .3s}
+.mark.has img{opacity:1}
+.mark.has i{opacity:0}
+
+.who{font-variation-settings:'wdth' 104,'wght' 700;font-size:1rem;
+  letter-spacing:-.012em;color:var(--text-strong);line-height:1.22}
+.role{display:block;font-family:var(--f-mono);font-size:.5938rem;font-weight:400;
+  letter-spacing:.14em;color:var(--dim);text-transform:uppercase;margin-top:.3rem;line-height:1.45}
+.when{font-family:var(--f-mono);font-size:.6875rem;color:var(--dim);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.when b{color:var(--signal);font-weight:400}
+
+/* ══ A — batang durasi ══════════════════════════════════════ */
+.a-row{display:grid;grid-template-columns:30px 1fr;gap:.7rem;
+  padding:.85rem 0;border-bottom:1px dashed var(--rule-soft)}
+.a-row:last-child{border-bottom:0}
+.a-head{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem}
+.a-meter{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center;margin-top:.6rem}
+.a-trk{position:relative;height:12px;border:1px solid var(--rule-soft);background:var(--panel-2)}
+.a-fill{position:absolute;inset:1px auto 1px 1px;
+  border:1px solid var(--structure);background:color-mix(in srgb,var(--structure) 22%,transparent)}
+.a-fill.now{border-color:var(--signal);background:color-mix(in srgb,var(--signal) 26%,transparent)}
+.a-fill.soft{border-style:dashed;background:transparent}
+.a-dur{font-family:var(--f-mono);font-size:.6875rem;color:var(--text-strong);
+  font-variant-numeric:tabular-nums;letter-spacing:.06em;min-width:5.2rem;text-align:right}
+.a-dur.now{color:var(--signal)}
+
+/* ══ B — rel datum ══════════════════════════════════════════ */
+.b-list{position:relative;padding-left:4.4rem}
+.b-rail{position:absolute;left:3.15rem;top:.4rem;bottom:.4rem;width:1px;background:var(--rule)}
+.b-thread{position:absolute;width:2px;border-radius:0;pointer-events:none}
+.b-row{position:relative;padding:0 0 1.5rem}
+.b-row:last-child{padding-bottom:0}
+.b-yr{position:absolute;left:-4.4rem;top:-.15rem;width:2.5rem;text-align:right;
+  font-family:var(--f-mono);font-size:.75rem;color:var(--text-strong);
+  font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.b-tick{position:absolute;left:-1.35rem;top:.42rem;width:.85rem;height:1px;background:var(--rule)}
+.b-node{position:absolute;left:-1.32rem;top:.05rem;width:9px;height:9px;
+  border:1px solid var(--structure);background:var(--ink);transform:rotate(45deg)}
+.b-node.now{border-color:var(--signal);background:var(--signal)}
+.b-node.soft{border-style:dashed;border-color:var(--dim)}
+.b-card{display:grid;grid-template-columns:30px 1fr;gap:.7rem;align-items:start}
+.b-meta{display:flex;gap:.5rem;align-items:baseline;flex-wrap:wrap;margin-top:.45rem}
+.b-dur{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.1em;color:var(--text-strong);
+  border:1px solid var(--rule);padding:.05rem .35rem;text-transform:uppercase}
+.b-dur.now{color:var(--signal);border-color:color-mix(in srgb,var(--signal) 55%,transparent)}
+.b-legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.1rem;padding-top:.75rem;
+  border-top:1px dashed var(--rule-soft)}
+.b-legend span{display:flex;align-items:center;gap:.4rem;font-family:var(--f-mono);
+  font-size:.5938rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.b-legend i{display:block;width:14px;height:2px;background:var(--signal)}
+
+/* ══ C — baris register ═════════════════════════════════════ */
+.c-list{border:var(--sheet);border-bottom:0;background:var(--panel)}
+.c-row{display:grid;grid-template-columns:30px 1fr;gap:.7rem;
+  padding:.9rem .85rem;border-bottom:var(--sheet);position:relative}
+.c-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--signal);transform:scaleY(0);transform-origin:center;transition:transform .25s}
+.c-row.open::before{transform:scaleY(1)}
+.c-top{display:flex;align-items:center;gap:.5rem}
+.c-led{width:7px;height:7px;flex:none;background:var(--idle)}
+.c-led.on{background:var(--live);box-shadow:0 0 0 3px color-mix(in srgb,var(--live) 18%,transparent)}
+.c-ver{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;margin-top:.5rem}
+.c-ver .v{font-family:var(--f-mono);font-size:.75rem;color:var(--text);
+  font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.c-ver .v .arw{color:var(--dim);padding:0 .15rem}
+.c-ver .v .pres{color:var(--signal)}
+.c-ver .d{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.1em;
+  color:var(--dim);text-transform:uppercase;white-space:nowrap}
+
+.note{font-size:.75rem;color:var(--dim);margin-top:.85rem;line-height:1.55;
+  border-left:2px solid var(--rule);padding-left:.7rem}
+.note b{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="lbl" style="margin:0 0 1.75rem">RSH / PATH — 3 ARAH UNTUK LAYAR SEMPIT</p>
+
+  <!-- ═══════════════ A ═══════════════ -->
+  <section class="opt">
+    <header>
+      <span class="tag">Arah A</span>
+      <h2>Batang durasi</h2>
+    </header>
+    <p class="why">
+      Batangnya berhenti menunjukkan <b>kapan</b> dan mulai menunjukkan <b>berapa lama</b>.
+      Semua mulai dari kiri, lebarnya sebanding durasi, angkanya dicetak di sebelahnya.
+      Perubahan paling kecil dari yang sekarang.
+    </p>
+    <div class="sheet" id="a"></div>
+    <p class="note">
+      <b>Dapat:</b> batang jadi bisa dibandingkan antar baris, dan durasi terbaca tanpa hover
+      — tooltip memang mati di layar sentuh.<br>
+      <b>Hilang:</b> posisi waktu, dan overlap dua posisi sekaligus tidak terlihat lagi.
+    </p>
+  </section>
+
+  <!-- ═══════════════ B ═══════════════ -->
+  <section class="opt">
+    <header>
+      <span class="tag">Arah B</span>
+      <h2>Rel datum</h2>
+    </header>
+    <p class="why">
+      Garis datum vertikal seperti garis ukur di gambar teknik. Tahun menempel di rel,
+      jadi skalanya selalu ada di sebelah entri — tidak nyangkut di atas layar.
+      Benang oranye adalah posisi yang masih jalan, ditarik sampai ke atas.
+    </p>
+    <div class="sheet" id="b"></div>
+    <p class="note">
+      <b>Dapat:</b> urutan waktu, durasi, dan <b>dua benang oranye yang jalan bersamaan</b> —
+      persis kalimat subtitle-nya, sekarang tergambar dan bukan cuma ditulis.<br>
+      <b>Hilang:</b> jarak antar entri tidak proporsional terhadap waktu.
+    </p>
+  </section>
+
+  <!-- ═══════════════ C ═══════════════ -->
+  <section class="opt">
+    <header>
+      <span class="tag">Arah C</span>
+      <h2>Baris register</h2>
+    </header>
+    <p class="why">
+      Grafiknya dibuang. Barisnya memakai bentuk yang sama dengan register di section
+      <b>Work</b>: LED status, version string untuk tanggal, durasi di kanan.
+      Satu kosakata untuk dua section.
+    </p>
+    <div id="c"></div>
+    <p class="note">
+      <b>Dapat:</b> paling padat dan paling cepat dibaca; konsisten dengan register Work.<br>
+      <b>Hilang:</b> tidak ada gambaran waktu sama sekali — overlap hilang total.
+    </p>
+  </section>
+
+</div>
+
+<script>
+var LANG = "id";
+var TIMELINE = [
+  {g:"emp", s:"2024-01", e:null,      who:"PT Sinergi Informatika Semen Indonesia", role:"Fullstack Developer",         logo:"/logo/sinergi-informatika.svg"},
+  {g:"emp", s:"2023-03", e:"2023-12", who:"Kementerian BUMN",                       role:"Junior Web Programmer",       logo:"/logo/kementerian-bumn.svg"},
+  {g:"prog",s:"2022-02", e:"2022-07", who:"Binar Academy",                          role:"iOS Developer · MSIB Batch 2",logo:"/logo/binar-academy.svg", soft:true},
+  {g:"emp", s:"2021-08", e:"2022-01", who:"PT Vidio Dot Com",                        role:"Test Engineer",               logo:"/logo/vidio.svg"},
+  {g:"edu", s:"2020-01", e:"2020-12", who:"WASENJA",                                 role:"Member",                      logo:"/logo/wasenja.svg", soft:true},
+  {g:"edu", s:"2018-09", e:"2022-08", who:"STMIK Jayakarta",                         role:"B.Eng Informatics · GPA 3.85",logo:"/logo/stmik-jayakarta.svg", soft:true},
+  {g:"emp", s:"2016-10", e:null,      who:"Freelance",                               role:"Independent web development — PHP, Laravel, Django"}
+];
+var GROUPS = {emp:"Pekerjaan", prog:"Program", edu:"Pendidikan"};
+var MONTHS = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+var NOW = "2026-08";
+
+function ym(s){ var a = s.split("-"); return {y:+a[0], m:+a[1]-1}; }
+function fmtYM(s){ var d = ym(s); return MONTHS[d.m] + " " + d.y; }
+function ver(s){ var a = s.split("-"); return a[0] + "." + a[1]; }
+function months(a,b){ var x = ym(a), y = ym(b); return (y.y-x.y)*12 + (y.m-x.m); }
+function durText(n){
+  var y = Math.floor(n/12), m = n%12, out = [];
+  if(y) out.push(y + " thn");
+  if(m) out.push(m + " bln");
+  return out.join(" ") || "<1 bln";
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+function mono(name){
+  return name.replace(/^(PT|CV)\s+/i,"").split(/\s+/).slice(0,2)
+             .map(function(w){ return w[0]; }).join("").toUpperCase();
+}
+function markHtml(t){
+  return '<span class="mark"><i>'+ mono(t.who) +'</i>'+
+    (t.logo ? '<img src="'+ t.logo +'" alt="" loading="lazy" '+
+              'onload="this.parentNode.classList.add(\'has\')" onerror="this.remove()">' : '') +
+    '</span>';
+}
+
+/* ── A ─────────────────────────────────────────────────────── */
+(function(){
+  var longest = Math.max.apply(null, TIMELINE.map(function(t){ return months(t.s, t.e || NOW); }));
+  var h = "";
+  Object.keys(GROUPS).forEach(function(g){
+    var rows = TIMELINE.filter(function(t){ return t.g === g; });
+    if(!rows.length) return;
+    h += '<div class="grp"><span class="lbl grp-h">'+ GROUPS[g] +'</span>';
+    rows.forEach(function(t){
+      var open = !t.e, n = months(t.s, t.e || NOW), pct = Math.max(n / longest * 100, 3);
+      h += '<div class="a-row">'+ markHtml(t) +'<div>'+
+             '<div class="a-head">'+
+               '<span class="who">'+ esc(t.who) +'</span>'+
+               '<span class="when">'+ ver(t.s) +' → '+ (open ? '<b>kini</b>' : ver(t.e)) +'</span>'+
+             '</div>'+
+             '<span class="role">'+ esc(t.role) +'</span>'+
+             '<div class="a-meter">'+
+               '<span class="a-trk"><span class="a-fill'+ (open?' now':'') + (t.soft?' soft':'') +
+                 '" style="width:calc('+ pct +'% - 2px)"></span></span>'+
+               '<span class="a-dur'+ (open?' now':'') +'">'+ durText(n).toUpperCase() +'</span>'+
+             '</div>'+
+           '</div></div>';
+    });
+    h += '</div>';
+  });
+  document.getElementById("a").innerHTML = h;
+})();
+
+/* ── B ─────────────────────────────────────────────────────── */
+(function(){
+  var h = '<div class="b-list"><span class="b-rail"></span>';
+  TIMELINE.forEach(function(t, i){
+    var open = !t.e, n = months(t.s, t.e || NOW);
+    h += '<div class="b-row" data-open="'+ (open?1:0) +'">'+
+           '<span class="b-yr">'+ ym(t.s).y +'</span>'+
+           '<span class="b-tick"></span>'+
+           '<span class="b-node'+ (open?' now':'') + (t.soft?' soft':'') +'"></span>'+
+           '<div class="b-card">'+ markHtml(t) +'<div>'+
+             '<span class="who">'+ esc(t.who) +'</span>'+
+             '<span class="role">'+ esc(t.role) +'</span>'+
+             '<div class="b-meta">'+
+               '<span class="when">'+ fmtYM(t.s) +' – '+ (open ? '<b>sekarang</b>' : fmtYM(t.e)) +'</span>'+
+               '<span class="b-dur'+ (open?' now':'') +'">'+ durText(n) +'</span>'+
+             '</div>'+
+           '</div></div>'+
+         '</div>';
+  });
+  h += '</div>'+
+       '<div class="b-legend"><span><i></i> masih berjalan</span>'+
+       '<span><i style="background:var(--dim);height:1px"></i> selesai</span></div>';
+  var host = document.getElementById("b");
+  host.innerHTML = h;
+
+  // Benang untuk entri yang masih jalan: ditarik dari node-nya sampai ke puncak
+  // daftar, jadi dua posisi yang berjalan bersamaan terbaca sebagai dua garis.
+  requestAnimationFrame(function(){
+    var list = host.querySelector(".b-list"), top = list.getBoundingClientRect().top, k = 0;
+    list.querySelectorAll('.b-row[data-open="1"]').forEach(function(row){
+      var node = row.querySelector(".b-node"),
+          y = node.getBoundingClientRect().top - top + 4,
+          line = document.createElement("span");
+      line.className = "b-thread";
+      line.style.background = "var(--signal)";
+      line.style.opacity = .55 - k * .18;
+      line.style.left = (49 - k * 5) + "px";
+      line.style.top = "0px";
+      line.style.height = y + "px";
+      list.append(line);
+      k++;
+    });
+  });
+})();
+
+/* ── C ─────────────────────────────────────────────────────── */
+(function(){
+  var h = "";
+  Object.keys(GROUPS).forEach(function(g){
+    var rows = TIMELINE.filter(function(t){ return t.g === g; });
+    if(!rows.length) return;
+    h += '<div class="grp"><span class="lbl grp-h">'+ GROUPS[g] +'</span><div class="c-list">';
+    rows.forEach(function(t){
+      var open = !t.e, n = months(t.s, t.e || NOW);
+      h += '<div class="c-row'+ (open?' open':'') +'">'+ markHtml(t) +'<div>'+
+             '<div class="c-top"><span class="c-led'+ (open?' on':'') +'"></span>'+
+               '<span class="who">'+ esc(t.who) +'</span></div>'+
+             '<span class="role">'+ esc(t.role) +'</span>'+
+             '<div class="c-ver">'+
+               '<span class="v">'+ ver(t.s) +'<span class="arw">→</span>'+
+                 (open ? '<span class="pres">····</span>' : ver(t.e)) +'</span>'+
+               '<span class="d">'+ durText(n) +'</span>'+
+             '</div>'+
+           '</div></div>';
+    });
+    h += '</div></div>';
+  });
+  document.getElementById("c").innerHTML = h;
+})();
+</script>
+</body>
+</html>

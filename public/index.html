@@ -294,15 +294,22 @@ h1 em{font-style:normal;color:var(--signal)}
 #maplist > ul > li{border-left:1px solid var(--rule);padding-left:1rem;margin-left:.35rem}
 #maplist > ul > li + li{margin-top:1.1rem}
 #maplist .dm{display:block;margin-bottom:.5rem}
+/* justify-content is explicit because this is a <button>: WebKit centres button
+   content in its UA sheet, and text-align does not reach a flex container. */
 #maplist .lf{
-  display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;
+  display:flex;align-items:center;justify-content:flex-start;gap:.6rem;
+  width:100%;text-align:left;
   background:var(--panel-2);border:1px solid var(--rule);padding:.55rem .7rem;
   cursor:pointer;margin-bottom:.4rem;
 }
-#maplist .lf .d{width:7px;height:7px;background:var(--live);flex:none}
+/* The status square must not be caught by the runtime rule below — an auto
+   left margin on it pushes the whole row off the left edge by however much
+   space the name happens to leave, so no two rows line up. */
+#maplist .lf .d{width:7px;height:7px;background:var(--live);flex:none;align-self:center}
 #maplist .lf .d.idle{background:var(--idle)}
-#maplist .lf strong{font-variation-settings:'wdth' 104,'wght' 600;font-weight:400;font-size:.9375rem}
-#maplist .lf span{margin-left:auto;font-family:var(--f-mono);font-size:.625rem;color:var(--dim)}
+#maplist .lf strong{font-variation-settings:'wdth' 104,'wght' 600;font-weight:400;font-size:.9375rem;min-width:0}
+#maplist .lf .rt{margin-left:auto;padding-left:.6rem;font-family:var(--f-mono);
+  font-size:.625rem;color:var(--dim);flex:none;white-space:nowrap}
 
 .legend{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center;padding:.6rem 1rem;border-top:var(--sheet)}
 .legend .k{display:flex;align-items:center;gap:.4rem}
@@ -384,6 +391,10 @@ h1 em{font-style:normal;color:var(--signal)}
   display:grid;grid-template-columns:2rem minmax(0,12rem) 8.5rem minmax(0,1fr);
   gap:.75rem;align-items:center;padding:.35rem 0;
 }
+/* The wide layout reads duration off the bar's length against the axis, so the
+   printed readout is dropped entirely rather than merely hidden — display:none
+   keeps it out of the grid, which still expects four cells. */
+.row-t .dur{display:none}
 /* Logo plate. The monogram sits underneath and shows through until a real
    logo file loads, so a missing file is never a broken image. */
 .mark{
@@ -413,8 +424,12 @@ h1 em{font-style:normal;color:var(--signal)}
 .row-t .when b{color:var(--signal);font-weight:400}
 .trk{position:relative;height:24px}
 .trk::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--rule-soft)}
+/* Geometry arrives as custom properties rather than inline left/width, so the
+   narrow layout can swap the bar from "when it ran" to "how long it ran"
+   without fighting an inline style. */
 .bar{
   position:absolute;top:50%;transform:translateY(-50%);height:14px;min-width:5px;
+  left:var(--l);width:var(--w);
   border:1px solid var(--structure);background:color-mix(in srgb,var(--structure) 22%,transparent);
   cursor:pointer;transition:filter .18s,box-shadow .18s;
 }
@@ -436,14 +451,39 @@ h1 em{font-style:normal;color:var(--signal)}
 .reveal.in .bar{clip-path:inset(0 0 0 0)}
 
 @media (max-width:820px){
-  /* Stack: identity first, timeline underneath at full width. Nothing is
-     dropped and nothing needs sideways scrolling. */
-  .row-t{grid-template-columns:2rem 1fr auto;gap:.2rem .6rem;padding:.6rem 0;
-         border-bottom:1px dashed var(--rule-soft)}
-  .row-t .mark{grid-row:span 2}
-  .row-t .when{text-align:right}
-  .row-t .trk{grid-column:2 / -1;height:18px;margin-top:.3rem}
-  .axis span{font-size:.5625rem}
+  /* A gantt needs its scale on screen. Here the axis scrolls away long before
+     the rows do, and an 11-year span squeezes a five-month posting into 12px —
+     so the bar carries no readable position, and the tooltip that held the
+     duration is off on touch anyway.
+     The bar stops answering "when" and starts answering "how long": every one
+     starts at the left, its length is duration against the longest engagement,
+     and the figure is printed beside it instead of hovered. */
+  .axis{display:none}
+  .row-t .dur{display:block}
+  .bar{left:0;width:var(--d)}
+  .bar.now::after{display:none}
+
+  /* Newest first — the reading order a phone wants. DOM order stays
+     chronological for assistive tech and for the wide layout. */
+  .grp{display:flex;flex-direction:column-reverse}
+  .grp > .lbl{order:1;margin-bottom:.85rem}
+
+  .row-t{
+    grid-template-columns:30px minmax(0,1fr) auto;
+    gap:.3rem .7rem;align-items:start;padding:.75rem 0;
+    border-bottom:1px dashed var(--rule-soft);
+  }
+  .row-t .mark{grid-column:1;grid-row:1 / span 2;align-self:start;margin-top:.1rem}
+  .row-t .who{grid-column:2;grid-row:1}
+  .row-t .when{grid-column:3;grid-row:1;justify-self:end;margin-top:.15rem}
+  .row-t .trk{grid-column:2;grid-row:2;height:14px;align-self:center;margin-top:.3rem}
+  .row-t .dur{
+    grid-column:3;grid-row:2;justify-self:end;align-self:center;margin-top:.3rem;
+    font-family:var(--f-mono);font-size:.625rem;letter-spacing:.1em;
+    color:var(--text-strong);text-transform:uppercase;white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .row-t[data-open="1"] .dur{color:var(--signal)}
 }
 .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--rule);border:var(--sheet);border-top:0}
 .roles article{background:var(--panel);padding:1.1rem}
@@ -650,11 +690,19 @@ form{display:grid;gap:.9rem}
 #failed{border:1px solid var(--signal);padding:.7rem .9rem;display:none;font-size:.9375rem;color:var(--text-strong)}
 #failed.on{display:block}
 #sent.on{display:grid}
-.direct{display:grid;gap:1px;background:var(--rule);border:var(--sheet);align-content:start}
+/* A column rather than a grid: the rows keep their own height and the CV
+   preview takes whatever is left, so the container's rule-coloured background
+   never shows through as an empty slab. */
+.direct{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:var(--sheet)}
 .direct a{
   background:var(--panel);padding:.9rem 1rem;text-decoration:none;display:flex;
-  align-items:baseline;gap:1rem;transition:background .2s;
+  align-items:baseline;gap:1rem;transition:background .2s;flex:none;
 }
+/* Hidden below the two-column breakpoint: there is no leftover space to fill
+   there, and neither iOS Safari nor Android Chrome renders a PDF in a frame. */
+.cvprev{flex:1;min-height:260px;display:flex;background:var(--panel)}
+.cvprev iframe{flex:1;width:100%;border:0;background:var(--panel)}
+@media (max-width:820px){.cvprev{display:none}}
 .direct a:hover{background:var(--panel-2)}
 .direct a .v{margin-left:auto;font-family:var(--f-mono);font-size:.8125rem;color:var(--text-strong);text-align:right}
 .direct a:hover .v{color:var(--signal)}
@@ -1233,7 +1281,7 @@ function buildMapList(){
     kids.forEach(function(p){
       h += '<button class="lf" type="button" data-id="'+p.id+'">'+
            '<span class="d'+(p.live?"":" idle")+'"></span>'+
-           '<strong>'+esc(p.name)+'</strong><span>'+esc(p.runtime[0])+'</span></button>';
+           '<strong>'+esc(p.name)+'</strong><span class="rt">'+esc(p.runtime[0])+'</span></button>';
     });
     h += '</li>';
   });
@@ -1448,14 +1496,25 @@ function buildStamps(){
 }
 
 function buildDirect(){
-  document.getElementById("direct").innerHTML =
-    (CONTENT.contact || []).map(function(c){
-      return '<a href="' + esc(c.href) + '"' + (c.download ? " download" : "") + '>' +
-             '<span class="lbl">' + esc(c[lang] || c.en || "") + '</span>' +
-             '<span class="v' + (c.num ? " num" : "") + '"' +
-             (c.accent ? ' style="color:var(--signal)"' : '') + '>' +
-             esc(c.value) + '</span></a>';
-    }).join("");
+  var routes = CONTENT.contact || [];
+  var h = routes.map(function(c){
+    return '<a href="' + esc(c.href) + '"' + (c.download ? " download" : "") + '>' +
+           '<span class="lbl">' + esc(c[lang] || c.en || "") + '</span>' +
+           '<span class="v' + (c.num ? " num" : "") + '"' +
+           (c.accent ? ' style="color:var(--signal)"' : '') + '>' +
+           esc(c.value) + '</span></a>';
+  }).join("");
+
+  // The preview reads its file from the contact route that already points at a
+  // PDF, so the path is never written twice and cannot drift. No route, no
+  // frame — an empty viewer is worse than the plain download link above it.
+  var cv = routes.filter(function(c){ return /\.pdf($|[?#])/i.test(c.href || ""); })[0];
+  if(cv){
+    h += '<div class="cvprev"><iframe src="' + esc(cv.href) +
+         '#toolbar=0&amp;navpanes=0&amp;view=FitH" title="' +
+         esc(cv[lang] || cv.en || "CV") + '" loading="lazy"></iframe></div>';
+  }
+  document.getElementById("direct").innerHTML = h;
 }
 
 function buildFooter(){
@@ -1506,6 +1565,12 @@ function buildPath(){
   var total = (last - base + 1) * 12;
   function at(s){ var d = ym(s); return ((d.y - base) * 12 + d.m) / total * 100; }
 
+  // Narrow layouts scale the bar against the longest engagement rather than the
+  // whole span, so a five-month posting is still a readable length.
+  var longest = Math.max.apply(null, TIMELINE.map(function(t){
+    return months(t.s, t.e || nowStr);
+  }));
+
   var h = '<div class="axis">';
   for(var y = base; y <= last; y++){
     h += '<span style="left:'+ ((y - base) * 12 / total * 100) +'%">'+ y +'</span>';
@@ -1520,9 +1585,11 @@ function buildPath(){
       var open  = !t.e,
           left  = at(t.s),
           width = Math.max(at(t.e || nowStr) - left, 0.7),
+          run   = months(t.s, t.e || nowStr),
+          span  = Math.max(run / longest * 100, 4),
           when  = fmtYM(t.s) + " – " +
                   (open ? '<b>' + tr("t.present") + '</b>' : fmtYM(t.e));
-      h += '<div class="row-t">'+
+      h += '<div class="row-t" data-open="'+ (open ? 1 : 0) +'">'+
              '<span class="mark"><i>'+ mono(t.who) +'</i>'+
                (t.logo ? '<img src="'+ t.logo +'" alt="" loading="lazy" ' +
                          'onload="this.parentNode.classList.add(\'has\')" ' +
@@ -1533,7 +1600,8 @@ function buildPath(){
              '<span class="trk"><span class="bar'+ (open ? " now" : "") + (t.soft ? " soft" : "") +
                '" data-i="'+ TIMELINE.indexOf(t) +'" tabindex="0" role="img" aria-label="'+
                esc(t.who + " — " + t.role[lang] + ", " + when.replace(/<\/?b>/g,"")) +
-               '" style="left:'+ left +'%;width:'+ width +'%"></span></span>'+
+               '" style="--l:'+ left +'%;--w:'+ width +'%;--d:'+ span +'%"></span></span>'+
+             '<span class="dur">'+ durText(run) +'</span>'+
            '</div>';
     });
     h += '</div>';
