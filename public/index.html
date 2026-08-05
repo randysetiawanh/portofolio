@@ -1473,8 +1473,12 @@ function paintPdf(host, href){
   // few MB, and a quiet corner label reads as a blank pane.
   var note = function(t){ host.innerHTML = '<span class="lbl">' + t + '</span>'; };
   note("FETCHING RENDERER…");
-  import("/vendor/pdfjs/pdf.min.mjs").then(function(pdfjs){
-    pdfjs.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs";
+  // The legacy build, not the modern one: PDF.js 6 calls
+  // Map.prototype.getOrInsertComputed, which only Firefox ships. On Safari the
+  // modern build dies with "getOrInsertComputed is not a function" before a
+  // single page draws. The legacy bundle carries the core-js polyfill for it.
+  import("/vendor/pdfjs/pdf.legacy.min.mjs").then(function(pdfjs){
+    pdfjs.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.legacy.min.mjs";
     note("LOADING PDF…");
     // v6 dropped every shorthand: only {url} with an absolute string loads.
     var task = pdfjs.getDocument({url: new URL(href, location.href).href});
