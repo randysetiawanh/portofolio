@@ -607,12 +607,12 @@ h1 em{font-style:normal;color:var(--signal)}
 }
 #pdfview .ph .x:hover{border-color:var(--signal);color:var(--signal)}
 #pdfview .pb{flex:1;background:var(--panel)}
-#pdfview .pb,#cvpane .pv{overflow:auto;overscroll-behavior:contain;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
-#pdfview .pb canvas,#cvpane .pv canvas{max-width:100%;height:auto;box-shadow:var(--shadow);border:var(--sheet)}
-#pdfview .pb .lbl,#cvpane .pv .lbl{margin:auto}
-#pdfview .pb .perr,#cvpane .pv .perr{margin:auto;display:grid;gap:1.1rem;justify-items:center;padding:2rem;border:1px dashed var(--rule);max-width:82%}
-#pdfview .pb .perr .lbl,#cvpane .pv .perr .lbl{margin:0;text-align:center}
-#pdfview .pb .perr .send,#cvpane .pv .perr .send{text-decoration:none}
+#pdfview .pb{overflow:auto;overscroll-behavior:contain;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+#pdfview .pb canvas{max-width:100%;height:auto;box-shadow:var(--shadow);border:var(--sheet)}
+#pdfview .pb .lbl{margin:auto}
+#pdfview .pb .perr{margin:auto;display:grid;gap:1.1rem;justify-items:center;padding:2rem;border:1px dashed var(--rule);max-width:82%}
+#pdfview .pb .perr .lbl{margin:0;text-align:center}
+#pdfview .pb .perr .send{text-decoration:none}
 
 /* ── stack matrix ───────────────────────────────────────────── */
 .layers{display:grid;gap:1px;background:var(--rule);border:var(--sheet)}
@@ -721,12 +721,6 @@ form{display:grid;gap:.9rem}
 #sent.on{display:grid}
 .dcol{display:grid;gap:1.25rem;align-content:start}
 .direct{display:grid;gap:1px;background:var(--rule);border:var(--sheet);align-content:start}
-/* the CV pinned to the board: page plates in a bounded, scrollable well,
-   drawn by the same renderer as the sheet viewer — crisp at any dpr */
-#cvpane{border:var(--sheet);background:var(--panel)}
-#cvpane .cap{display:flex;align-items:baseline;gap:1rem;justify-content:space-between;padding:.6rem .8rem;border-bottom:var(--sheet)}
-#cvpane .cap .go{text-decoration:none;color:var(--signal)}
-#cvpane .pv{max-height:min(72vh,620px);overflow:auto;overscroll-behavior:contain;background:var(--ink)}
 .direct a{
   background:var(--panel);padding:.9rem 1rem;text-decoration:none;display:flex;
   align-items:baseline;gap:1rem;transition:background .2s;
@@ -1046,13 +1040,6 @@ footer{
       </div>
       <div class="dcol reveal" data-d="1">
         <div class="direct" id="direct"></div>
-        <div id="cvpane" hidden>
-          <div class="cap">
-            <span class="lbl" data-t="f.cv">Curriculum vitae</span>
-            <a class="lbl go" id="cvfull" href="#">See PDF →</a>
-          </div>
-          <div class="pv" id="cvpages"></div>
-        </div>
       </div>
     </div>
   </section>
@@ -1529,21 +1516,6 @@ function paintPdf(host, href){
   });
 }
 
-/* The pane waits for the reader: rendering starts only when the contact
-   section approaches the viewport, so the runtime and the PDF are never
-   fetched for a visit that ends above the fold. */
-var paneWatched = false;
-function watchPane(href){
-  if(paneWatched) return;
-  paneWatched = true;
-  var pages = document.getElementById("cvpages");
-  var go = function(){ paintPdf(pages, href); };
-  if(!("IntersectionObserver" in window)) return go();
-  var io = new IntersectionObserver(function(es){
-    if(es.some(function(e){ return e.isIntersecting; })){ io.disconnect(); go(); }
-  }, {rootMargin: "300px"});
-  io.observe(pages);
-}
 
 function closePdf(){
   pvOn = false;
@@ -1664,20 +1636,6 @@ function buildDirect(){
     });
   });
 
-  // The CV pane on the page itself: the same canvas renderer as the sheet
-  // viewer, in a bounded scrollable well; its caption link opens the full
-  // sheet. Render starts only when the section nears the viewport.
-  var pane = document.getElementById("cvpane"),
-      cv = (CONTENT.contact || []).filter(function(c){ return c.viewer; })[0];
-  pane.hidden = !cv;
-  if(cv){
-    var cvVal = (cv.value && cv.value.en) ? (cv.value[lang] || cv.value.en) : cv.value;
-    var full = document.getElementById("cvfull");
-    full.textContent = cvVal + " →";
-    full.href = cv.href;
-    full.onclick = function(e){ e.preventDefault(); openPdf(cv.href); };
-    watchPane(cv.href);
-  }
 }
 
 function buildFooter(){
