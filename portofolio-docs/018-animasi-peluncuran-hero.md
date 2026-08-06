@@ -57,6 +57,62 @@ Tingginya diambil dari `#map.offsetTop`, bukan dari tinggi hero penuh — supaya
 lintasannya berhenti di atas diagram sistem, yang punya animasi draw-in sendiri
 dan akan ramai kalau ditimpa.
 
+## Serbuk bintang di jejaknya
+
+38 tanda tertinggal di sepanjang lintasan, muncul saat roket melewatinya lalu
+mengendap dan berkelip pelan.
+
+Bentuknya **bukan bikinan baru**: fungsi `sparkle()` disalin dari
+`src/patterns.ts` — bintang empat sudut bersisi cekung yang sudah jadi pattern
+latar situs. Serbuknya karena itu terbaca sebagai tanda survei, bukan taburan
+generik.
+
+Posisinya juga tidak dihitung ulang. Diambil dari `getPointAtLength()` pada
+elemen path jejak yang sama, jadi jalurnya tetap satu definisi (R-145).
+
+### Bug waktu yang sempat terjadi, dan kenapa
+
+Versi pertama menempatkan butir pada **posisi** yang seragam di jalur, dengan
+`animation-delay` linear terhadap posisi itu. Roketnya bergerak dengan easing
+`cubic-bezier(.5,0,.72,.62)` — pelan di awal, cepat di akhir. Akibatnya serbuk
+menyala **mendahului** roket:
+
+| waktu | roket di | serbuk di | selisih |
+|---|---|---|---|
+| 25% | 5,8% | 25% | 19% di depan |
+| 50% | 25,6% | 50% | **24% di depan** |
+| 75% | 60,8% | 75% | 14% di depan |
+
+Perbaikannya membalik logikanya: butir ditempatkan pada **waktu** yang seragam,
+lalu posisinya dibaca dari easing roket yang dievaluasi maju (`ease()` di dalam
+IIFE `LAUNCH`). Karena sumbernya easing yang sama persis dengan animasi roket,
+serbuk tidak mungkin lagi mendahului — secara konstruksi, bukan secara setelan.
+
+Ditambah `lag` sebesar 34% lebar roket terender, supaya butirnya keluar dari
+mulut nozzle dan bukan dari hidung.
+
+Efek samping yang kebetulan benar: penempatan per-waktu membuat sebaran **rapat
+di dekat peluncuran** dan **renggang saat menanjak**, persis seperti buangan
+terdeposit sungguhan.
+
+### Jebakan selector
+
+Butir serbuk juga elemen `<path>`. Selector `#launch .arc path` akan mengenainya
+dan memberi stroke sekaligus menimpa `fill`-nya — CSS mengalahkan atribut
+presentasi, jadi serbuknya hilang tanpa error apa pun. Karena itu jejaknya
+diberi kelas sendiri dan CSS-nya di-scope ke `.tr`.
+
+### Kelip
+
+Tiap butir punya periode sendiri (2,4–5,4 detik) dan jeda mulai sendiri, jadi
+tidak berdenyut serempak — serempak akan terbaca seperti lampu disko, bukan
+bintang. Amplitudonya turun ke 28% opasitas endapan lalu naik lagi.
+
+Konsekuensi yang perlu diketahui: **38 animasi ini tidak pernah berhenti.**
+Semuanya `opacity` dan jalan di compositor, jadi murah — tapi tidak nol. Kalau
+suatu saat perlu dihemat, kurangi `DUST` atau beri kelipnya jumlah iterasi
+terbatas.
+
 ## Yang menjaganya tidak mengganggu
 
 - **Sekali lalu berhenti.** Animasi hero yang berulang jadi gangguan dalam
@@ -93,3 +149,11 @@ tambahan, tidak ada dependency, tidak ada gambar.
   keadaan gagal berupa "tidak tampil", bukan "tampil salah".
 - **R-150** — Tinggi lintasan diambil dari `#map.offsetTop`. Kalau urutan hero
   berubah, periksa lagi acuannya.
+- **R-151** — Apa pun yang muncul menyusul roket dijadwalkan per **waktu**, lalu
+  posisinya dibaca dari `ease()`. Menjadwalkan per posisi membuatnya mendahului.
+- **R-152** — Bentuk serbuk diambil dari `sparkle()` di `src/patterns.ts`.
+  Jangan menggambar bentuk bintang kedua.
+- **R-153** — CSS di dalam `.arc` di-scope ke kelas, tidak pernah ke elemen
+  `path` telanjang — serbuknya path juga, dan akan hilang tanpa error.
+- **R-154** — Kelip tiap butir wajib punya periode dan jeda sendiri. Serempak
+  terbaca seperti lampu disko.

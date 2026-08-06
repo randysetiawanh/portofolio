@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Peluncuran di hero — nyala api</title>
+<title>Serbuk bintang di jejak roket</title>
 <style>
 @font-face{font-family:'Archivo';src:url('/fonts/archivo-var.woff2') format('woff2-variations');
   font-weight:100 900;font-display:swap}
@@ -27,7 +27,6 @@ body{margin:0;background:var(--ink);color:var(--text);font-family:var(--f-displa
 .wrap{max-width:980px;margin:0 auto;padding:1.5rem 1rem 5rem}
 .lbl{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.16em;
   text-transform:uppercase;color:var(--dim)}
-
 .opt{margin:0 0 3rem}
 .opt>header{display:flex;align-items:baseline;gap:.8rem;flex-wrap:wrap;
   border-bottom:2px solid var(--signal);padding-bottom:.5rem;margin-bottom:.5rem}
@@ -41,6 +40,9 @@ body{margin:0;background:var(--ink);color:var(--text);font-family:var(--f-displa
 .opt>header button:hover{border-color:var(--signal);color:var(--signal)}
 .why{font-size:.8125rem;color:var(--dim);margin:.4rem 0 1rem;line-height:1.55;max-width:74ch}
 .why b{color:var(--text)}
+.note{font-size:.75rem;color:var(--dim);margin-top:.7rem;line-height:1.55;
+  border-left:2px solid var(--rule);padding-left:.7rem;max-width:74ch}
+.note b{color:var(--text)}
 
 .hero{position:relative;border:var(--sheet);background:var(--panel);
   padding:1.4rem 1.5rem 1.6rem;overflow:hidden;min-height:340px}
@@ -58,123 +60,138 @@ body{margin:0;background:var(--ink);color:var(--text);font-family:var(--f-displa
 .postat .v{margin-left:auto;font-family:var(--f-mono);font-size:.75rem;
   color:var(--text-strong);text-align:right}
 
-/* ── Gerak: satu bezier, satu properti yang dianimasikan ──────
-   offset-path memberi kurva sungguhan, jadi tidak ada sudut di
-   antara titik keyframe. offset-rotate:auto memutar roket
-   mengikuti garis singgung, jadi rotasinya ikut mulus.
-   Yang berubah tiap frame cuma offset-distance dan opacity —
-   keduanya tidak menyentuh layout. */
 .flyer{position:absolute;left:0;top:0;z-index:2;pointer-events:none;
   offset-rotate:auto;offset-distance:0%;opacity:0;color:var(--structure);
   will-change:offset-distance,opacity}
-.run .flyer{animation:fly var(--dur,4.6s) cubic-bezier(.5,0,.72,.62) forwards,
-                      fade var(--dur,4.6s) linear forwards}
+.run .flyer{animation:fly 4.6s cubic-bezier(.5,0,.72,.62) forwards,
+                      fade 4.6s linear forwards}
 @keyframes fly{to{offset-distance:100%}}
 @keyframes fade{0%{opacity:0}7%{opacity:1}88%{opacity:1}100%{opacity:0}}
+.flyer svg{display:block;width:clamp(140px,21vw,228px);height:auto}
 
 .arc{position:absolute;inset:0;z-index:1;overflow:visible}
-.arc path{stroke:var(--structure);fill:none;stroke-width:1;opacity:.35;
-  stroke-dasharray:100;stroke-dashoffset:100;will-change:stroke-dashoffset}
-.run .arc path{animation:trace var(--dur,4.6s) cubic-bezier(.5,0,.72,.62) forwards}
+.arc .path{stroke:var(--structure);fill:none;stroke-width:1;opacity:.3;
+  stroke-dasharray:100;stroke-dashoffset:100}
+.run .arc .path{animation:trace 4.6s cubic-bezier(.5,0,.72,.62) forwards}
 @keyframes trace{to{stroke-dashoffset:0}}
 
-/* ── Nyala api: berdenyut halus, bukan strobo ────────────────── */
-@keyframes burn{
-  from{scale:1 1;opacity:.95}
-  to  {scale:.86 .92;opacity:.72}
+/* Serbuk: muncul tepat saat roket lewat, lalu mengendap tinggal samar.
+   Jejaknya memang tertinggal — sama seperti garisnya. */
+.dust{opacity:0;transform-box:fill-box;transform-origin:center}
+.run .dust{animation:settle 1.5s cubic-bezier(.16,1,.3,1) forwards,
+                     glint var(--per,3s) ease-in-out var(--gd,2s) infinite alternate}
+@keyframes settle{
+  0%  {opacity:0;scale:.35;rotate:-25deg}
+  22% {opacity:1;scale:1.15}
+  100%{opacity:var(--rest,.4);scale:1;rotate:0deg}
 }
+@keyframes glint{from{opacity:var(--rest,.4)}to{opacity:calc(var(--rest,.4) * .28)}}
+
 .run .flame{animation:burn .42s ease-in-out infinite alternate;
             transform-origin:6px 35px;transform-box:fill-box}
-.f1 .flame-mid,.f1 .flame-out{opacity:.5}
-.f1 .flame-core{opacity:.75}
-.f3 .flame-out{opacity:.85}
+@keyframes burn{from{scale:1 1;opacity:.95}to{scale:.86 .92;opacity:.72}}
 
 @media (prefers-reduced-motion:reduce){
-  .run .flyer,.run .arc path,.run .flame{animation:none}
-  .flyer{opacity:0} .arc path{stroke-dashoffset:0}
+  .run .flyer,.run .arc .path,.run .flame,.run .dust{animation:none}
+  .flyer{opacity:0} .arc .path{stroke-dashoffset:0} .dust{opacity:0}
 }
-.note{font-size:.75rem;color:var(--dim);margin-top:.7rem;line-height:1.55;
-  border-left:2px solid var(--rule);padding-left:.7rem;max-width:74ch}
-.note b{color:var(--text)}
 </style>
 </head>
 <body>
 <div class="wrap">
-<p class="lbl" style="margin:0 0 .4rem">RSH — ROKET A + API · GERAK MULUS</p>
-<p class="why" style="margin-bottom:2rem">Roket A apa adanya, ditambah nyala api dalam
-tiga kekuatan. Lintasannya sekarang <b>bezier sungguhan</b> lewat <code>offset-path</code>,
-jadi tidak ada lagi sudut di antara titik keyframe, dan roketnya berputar mengikuti garis
-singgung kurva. Yang dianimasikan tiap frame cuma <code>offset-distance</code> — tidak
-menyentuh layout, jadi tidak tersendat di HP.</p>
+<p class="lbl" style="margin:0 0 .4rem">RSH — SERBUK BINTANG DI JEJAK ROKET</p>
+<p class="why" style="margin-bottom:2rem">Serbuknya memakai <b>tanda sparkle milikmu
+sendiri</b> dari <code>src/patterns.ts</code> — bintang empat sudut bersisi cekung yang
+sudah jadi latar situs. Posisinya diambil langsung dari kurva lintasan lewat
+<code>getPointAtLength()</code>, jadi tidak ada salinan jalur kedua.
+<b>Diperbaiki:</b> butirnya kini menyala tepat di titik roket berada dan sedikit di
+belakang mulut nozzle — sebelumnya sempat mendahului sampai 24% jalur. Semua butir
+berkelip pelan dengan periode berbeda-beda setelah mengendap.</p>
 
-<section class="opt" id="a"><header><span class="tag">Api 1</span><h2>Tipis</h2>
+<section class="opt" id="a"><header><span class="tag">Serbuk 1</span><h2>Jarang</h2>
   <button data-run="a">Putar ulang</button></header>
-  <p class="why">Nyala kecil, sebagian besar masih garis. Paling dekat dengan A yang tadi.</p>
-  <div class="hero" data-f="f1"></div>
+  <p class="why">14 butir, semuanya biru struktur, ukuran kecil. Menambah tekstur tanpa
+    mengubah watak jejaknya.</p>
+  <div class="hero" data-n="14" data-mode="cool"></div>
 </section>
 
-<section class="opt" id="b"><header><span class="tag">Api 2</span><h2>Sedang</h2>
+<section class="opt" id="b"><header><span class="tag">Serbuk 2</span><h2>Sedang, mendingin</h2>
   <button data-run="b">Putar ulang</button></header>
-  <p class="why">Kerucut penuh dengan inti terang. Kelihatan jelas tanpa mendominasi.</p>
-  <div class="hero" data-f="f2"></div>
-  <p class="note"><b>Rekomendasi saya.</b> Cukup untuk terbaca sebagai api di layar HP,
-    masih kalah terang dari wordmark.</p>
+  <p class="why">24 butir campur bintang dan titik. Warnanya <b>mendingin sepanjang
+    jalur</b> — oranye di dekat peluncuran, biru saat menanjak. Bacaannya fisika, bukan
+    hiasan.</p>
+  <div class="hero" data-n="24" data-mode="warm"></div>
+  <p class="note"><b>Rekomendasi saya.</b> Gradasi warnanya memberi alasan kenapa
+    serbuknya ada, bukan sekadar taburan.</p>
 </section>
 
-<section class="opt" id="c"><header><span class="tag">Api 3</span><h2>Besar</h2>
+<section class="opt" id="c"><header><span class="tag">Serbuk 3</span><h2>Rapat</h2>
   <button data-run="c">Putar ulang</button></header>
-  <p class="why">Nyala panjang dengan lidah luar yang tegas dan jejak buangan.</p>
-  <div class="hero" data-f="f3"></div>
+  <p class="why">38 butir dengan sebaran paling lebar. Jejaknya paling terasa,
+    tapi juga paling ramai di dekat wordmark.</p>
+  <div class="hero" data-n="38" data-mode="warm"></div>
+  <p class="note">38 kelip yang berjalan terus. Ringan, tapi tidak pernah benar-benar
+    diam — pertimbangkan itu untuk HP.</p>
 </section>
-
 </div>
+
 <script>
+/* Diambil apa adanya dari src/patterns.ts — satu bentuk, dua tempat pakai. */
+function sparkle(cx, cy, r){
+  return "M"+cx+" "+(cy-r)+"C"+(cx+r*.06)+" "+(cy-r*.44)+" "+(cx+r*.44)+" "+(cy-r*.06)+" "+(cx+r)+" "+cy
+       + "C"+(cx+r*.44)+" "+(cy+r*.06)+" "+(cx+r*.06)+" "+(cy+r*.44)+" "+cx+" "+(cy+r)
+       + "C"+(cx-r*.06)+" "+(cy+r*.44)+" "+(cx-r*.44)+" "+(cy+r*.06)+" "+(cx-r)+" "+cy
+       + "C"+(cx-r*.44)+" "+(cy-r*.06)+" "+(cx-r*.06)+" "+(cy-r*.44)+" "+cx+" "+(cy-r)+"Z";
+}
+/* PRNG bersemai: sebarannya acak tapi sama tiap muat, jadi bisa dinilai. */
+function rng(seed){ return function(){ seed = seed*1664525 + 1013904223 & 0x7fffffff;
+  return seed / 0x7fffffff; }; }
+
+/* Easing roket, dievaluasi maju. Butir ditempatkan pada waktu yang seragam lalu
+   posisinya diambil dari sini — kalau dibalik (posisi seragam, waktu linear),
+   serbuk menyala mendahului roket, sampai 24% jalur di tengah penerbangan. */
+function bezierEase(x1, y1, x2, y2){
+  const cx = 3*x1, bx = 3*(x2-x1)-cx, ax = 1-cx-bx;
+  const cy = 3*y1, by = 3*(y2-y1)-cy, ay = 1-cy-by;
+  const fx = t => ((ax*t+bx)*t+cx)*t, fy = t => ((ay*t+by)*t+cy)*t;
+  return function(x){
+    let t = x;
+    for(let i = 0; i < 8; i++){
+      const e = fx(t) - x;
+      if(Math.abs(e) < 1e-6) break;
+      const d = (3*ax*t + 2*bx)*t + cx;
+      if(Math.abs(d) < 1e-7) break;
+      t -= e / d;
+    }
+    return fy(Math.min(1, Math.max(0, t)));
+  };
+}
+const EASE = bezierEase(.5, 0, .72, .62);
+
 const ROCKET = `
-<svg width="228" height="61" viewBox="-52 0 262 70" fill="none" stroke="currentColor"
-     stroke-width="1.1" stroke-linejoin="round" aria-hidden="true">
+<svg viewBox="-52 0 262 70" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round">
   <g class="flame">
-    <path class="flame-out" d="M8 19 C -14 25, -34 30, -50 35 C -34 40, -14 45, 8 51 Z"
-          fill="var(--signal)" opacity=".22" stroke="none"/>
-    <path class="flame-mid" d="M7 24 C -8 28, -22 31, -33 35 C -22 39, -8 42, 7 46 Z"
-          fill="var(--signal)" opacity=".7" stroke="none"/>
-    <path class="flame-core" d="M6 29 C -2 31, -9 33, -15 35 C -9 37, -2 39, 6 41 Z"
-          fill="#FFD08A" opacity=".95" stroke="none"/>
+    <path d="M8 19 C -14 25, -34 30, -50 35 C -34 40, -14 45, 8 51 Z" fill="var(--signal)" opacity=".5" stroke="none"/>
+    <path d="M7 24 C -8 28, -22 31, -33 35 C -22 39, -8 42, 7 46 Z" fill="var(--signal)" opacity=".5" stroke="none"/>
+    <path d="M6 29 C -2 31, -9 33, -15 35 C -9 37, -2 39, 6 41 Z" fill="#FFD08A" opacity=".75" stroke="none"/>
   </g>
   <path d="M22 27 L6 19 L6 51 L22 43 Z"/>
-  <g opacity=".45" stroke-width=".7">
-    <path d="M9 21 L9 49"/><path d="M13 23 L13 47"/><path d="M17 25 L17 45"/>
-  </g>
+  <g opacity=".45" stroke-width=".7"><path d="M9 21 L9 49"/><path d="M13 23 L13 47"/><path d="M17 25 L17 45"/></g>
   <path d="M22 25 H96 V45 H22 Z"/>
-  <g opacity=".3" stroke-width=".8">
-    <path d="M38 25 V45"/><path d="M54 25 V45"/><path d="M70 25 V45"/><path d="M86 25 V45"/>
-  </g>
-  <path d="M30 25 L20 9 H38 L50 25 Z"/>
-  <path d="M30 45 L20 61 H38 L50 45 Z"/>
-  <text x="58" y="39" font-family="ui-monospace,monospace" font-size="7"
-        fill="currentColor" stroke="none" letter-spacing=".8" opacity=".85">RSH-01</text>
+  <g opacity=".3" stroke-width=".8"><path d="M38 25 V45"/><path d="M54 25 V45"/><path d="M70 25 V45"/><path d="M86 25 V45"/></g>
+  <path d="M30 25 L20 9 H38 L50 25 Z"/><path d="M30 45 L20 61 H38 L50 45 Z"/>
+  <text x="58" y="39" font-family="ui-monospace,monospace" font-size="7" fill="currentColor" stroke="none" letter-spacing=".8" opacity=".85">RSH-01</text>
   <path d="M96 27 H110 V43 H96 Z"/>
-  <g opacity=".5" stroke-width=".7">
-    <path d="M98 43 L104 27"/><path d="M102 43 L108 27"/><path d="M106 43 L110 30"/>
-  </g>
-  <path d="M110 26 H152 V44 H110 Z"/>
-  <circle cx="126" cy="35" r="3.4"/>
-  <g stroke-width=".8">
-    <path d="M140 26 H150 V18 H140 Z"/><path d="M140 44 H150 V52 H140 Z"/>
-    <g opacity=".55"><path d="M143 18 V26"/><path d="M147 18 V26"/><path d="M140 22 H150"/>
-    <path d="M143 44 V52"/><path d="M147 44 V52"/><path d="M140 48 H150"/></g>
-  </g>
+  <g opacity=".5" stroke-width=".7"><path d="M98 43 L104 27"/><path d="M102 43 L108 27"/><path d="M106 43 L110 30"/></g>
+  <path d="M110 26 H152 V44 H110 Z"/><circle cx="126" cy="35" r="3.4"/>
+  <g stroke-width=".8"><path d="M140 26 H150 V18 H140 Z"/><path d="M140 44 H150 V52 H140 Z"/>
+    <g opacity=".55"><path d="M143 18 V26"/><path d="M147 18 V26"/><path d="M140 22 H150"/><path d="M143 44 V52"/><path d="M147 44 V52"/><path d="M140 48 H150"/></g></g>
   <path d="M152 26 Q182 28 200 35 Q182 42 152 44 Z"/>
-  <g opacity=".6" stroke-width=".7">
-    <path d="M22 64 H96"/><path d="M22 61 V67"/><path d="M96 61 V67"/>
-    <path d="M110 64 H152"/><path d="M110 61 V67"/><path d="M152 61 V67"/>
-    <path d="M186 30 L196 13 H209"/>
-  </g>
-  <text x="47" y="70" font-family="ui-monospace,monospace" font-size="6"
-        fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">STAGE I</text>
-  <text x="122" y="70" font-family="ui-monospace,monospace" font-size="6"
-        fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">II</text>
-  <text x="197" y="11" font-family="ui-monospace,monospace" font-size="6"
-        fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">PAYLOAD</text>
+  <g opacity=".6" stroke-width=".7"><path d="M22 64 H96"/><path d="M22 61 V67"/><path d="M96 61 V67"/>
+    <path d="M110 64 H152"/><path d="M110 61 V67"/><path d="M152 61 V67"/><path d="M186 30 L196 13 H209"/></g>
+  <text x="47" y="70" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">STAGE I</text>
+  <text x="122" y="70" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">II</text>
+  <text x="197" y="11" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">PAYLOAD</text>
 </svg>`;
 
 const HERO_BODY = `
@@ -188,34 +205,69 @@ const HERO_BODY = `
     <div><span class="lbl">Since</span><span class="v">2024</span></div>
   </div>`;
 
-/* Satu kurva dipakai dua kali: jadi offset-path roketnya, dan jadi d= jejaknya.
-   Karena sumbernya sama persis, jejak tidak mungkin melenceng dari roket. */
+const NS = "http://www.w3.org/2000/svg";
+const DUR = 4600;
+
 function curve(w, h){
-  return `M ${-.14*w} ${1.24*h}`
-       + ` C ${.06*w} ${.94*h}, ${.18*w} ${.62*h}, ${.42*w} ${.44*h}`
-       + ` S ${.80*w} ${.16*h}, ${1.16*w} ${-.22*h}`;
+  return "M " + (-.14*w) + " " + (1.24*h)
+       + " C " + (.06*w) + " " + (.94*h) + ", " + (.18*w) + " " + (.62*h) + ", " + (.42*w) + " " + (.44*h)
+       + " S " + (.80*w) + " " + (.16*h) + ", " + (1.16*w) + " " + (-.22*h);
+}
+
+function build(hero){
+  hero.innerHTML =
+    `<svg class="arc" preserveAspectRatio="none"><g class="dustg"></g>
+       <path class="path" pathLength="100" vector-effect="non-scaling-stroke" d=""/></svg>` +
+    `<span class="flyer">${ROCKET}</span>` + HERO_BODY;
+  layout(hero);
 }
 
 function layout(hero){
-  const w = hero.clientWidth, h = hero.clientHeight, d = curve(w, h);
+  const w = hero.clientWidth, full = hero.clientHeight, h = full * 0.82;
+  const d = curve(w, h);
+  const arc = hero.querySelector(".arc"), line = arc.querySelector(".path");
+  arc.setAttribute("viewBox", `0 0 ${w} ${full}`);
+  line.setAttribute("d", d);
   hero.querySelector(".flyer").style.offsetPath = `path("${d}")`;
-  const svg = hero.querySelector(".arc");
-  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-  svg.querySelector("path").setAttribute("d", d);
+
+  // Serbuk ditempatkan dengan mengukur kurva yang sama, bukan menghitung ulang.
+  const g = arc.querySelector(".dustg");
+  g.textContent = "";
+  const n = +hero.dataset.n, warm = hero.dataset.mode === "warm";
+  const total = line.getTotalLength(), rand = rng(97);
+
+  // Jarak mundur dari titik acuan ke mulut nozzle, supaya serbuk keluar dari
+  // buangan dan bukan dari hidung roket.
+  const rkw = (hero.querySelector(".flyer svg").getBoundingClientRect().width) || 200;
+  const lag = rkw * 0.34;
+
+  for(let i = 0; i < n; i++){
+    const time = (i + 0.5) / n;                 // seragam dalam WAKTU
+    const frac = EASE(time);                    // posisi roket pada waktu itu
+    const at = Math.max(0, frac * total - lag); // mundur ke mulut nozzle
+    const p = line.getPointAtLength(at);
+    const spread = 3 + rand() * 24;
+    const ang = rand() * Math.PI * 2;
+    const x = p.x + Math.cos(ang) * spread, y = p.y + Math.sin(ang) * spread;
+    const dot = rand() < 0.34;
+    const r = dot ? 0.9 + rand() * 1.1 : 2 + rand() * 3.4;
+
+    const el = document.createElementNS(NS, dot ? "circle" : "path");
+    if(dot){ el.setAttribute("cx", x); el.setAttribute("cy", y); el.setAttribute("r", r); }
+    else   { el.setAttribute("d", sparkle(x, y, r)); }
+    el.setAttribute("class", "dust");
+    el.setAttribute("fill", warm && time < 0.42 ? "var(--signal)" : "var(--structure)");
+    el.style.setProperty("--rest", (dot ? 0.32 : 0.52) - time * 0.1);
+    el.style.animationDelay = (time * DUR + 70) + "ms";
+    el.style.setProperty("--gd", (time * DUR + 1100 + rand() * 1800) + "ms");
+    el.style.setProperty("--per", (2400 + rand() * 3000) + "ms");
+    g.append(el);
+  }
 }
 
-document.querySelectorAll(".hero").forEach(h => {
-  h.innerHTML =
-    `<svg class="arc" preserveAspectRatio="none">
-       <path pathLength="100" vector-effect="non-scaling-stroke" d=""/></svg>` +
-    `<span class="flyer ${h.dataset.f}">${ROCKET}</span>` + HERO_BODY;
-  layout(h);
-});
-
-let t; addEventListener("resize", () => {
-  clearTimeout(t);
-  t = setTimeout(() => document.querySelectorAll(".hero").forEach(layout), 150);
-});
+document.querySelectorAll(".hero").forEach(build);
+let t; addEventListener("resize", () => { clearTimeout(t);
+  t = setTimeout(() => document.querySelectorAll(".hero").forEach(layout), 150); });
 
 function play(id){
   const s = document.getElementById(id);
