@@ -59,8 +59,9 @@ dan akan ramai kalau ditimpa.
 
 ## Serbuk bintang di jejaknya
 
-38 tanda tertinggal di sepanjang lintasan, muncul saat roket melewatinya lalu
-mengendap dan berkelip pelan.
+Tanda-tanda tertinggal di sepanjang lintasan, muncul saat roket melewatinya lalu
+mengendap dan berkelip pelan. Jumlahnya diatur dari `/admin` — lihat bagian
+setelan di bawah; produksi sekarang di 400.
 
 Bentuknya **bukan bikinan baru**: fungsi `sparkle()` disalin dari
 `src/patterns.ts` — bintang empat sudut bersisi cekung yang sudah jadi pattern
@@ -108,10 +109,9 @@ Tiap butir punya periode sendiri (2,4–5,4 detik) dan jeda mulai sendiri, jadi
 tidak berdenyut serempak — serempak akan terbaca seperti lampu disko, bukan
 bintang. Amplitudonya turun ke 28% opasitas endapan lalu naik lagi.
 
-Konsekuensi yang perlu diketahui: **38 animasi ini tidak pernah berhenti.**
-Semuanya `opacity` dan jalan di compositor, jadi murah — tapi tidak nol. Kalau
-suatu saat perlu dihemat, kurangi `DUST` atau beri kelipnya jumlah iterasi
-terbatas.
+Konsekuensi yang perlu diketahui: **kelip itu tidak pernah berhenti.** Semuanya
+`opacity` dan jalan di compositor, jadi murah — tapi tidak nol. Jumlahnya
+dibatasi `TW_CAP` (70), jadi menaikkan kerapatan tidak menaikkan ongkos ini.
 
 ## Yang menjaganya tidak mengganggu
 
