@@ -541,6 +541,38 @@ function appearanceEditor() {
   return wrap;
 }
 
+/** The hero launch animation. Every number is a knob on the page rather than a
+ *  constant in the shell, so density and colour are tuned here without a
+ *  deploy. The page clamps whatever it reads, so a typo cannot hang it. */
+function launchEditor() {
+  const app = (STATE.content.appearance ||= {});
+  const L = (app.launch ||= {});
+  const wrap = el("div", { class: "body", style: "padding:0" });
+
+  wrap.append(el("div", { class: "row" }, [
+    check("Show the launch animation", L.on !== false, v => (L.on = v)),
+  ]));
+  wrap.append(el("p", { class: "hint", style: "margin:.2rem 0 .6rem",
+    text: "Hidden automatically for visitors who ask for reduced motion." }));
+
+  const spin = (label, key, dflt, step) => {
+    const f = field(label, L[key] ?? dflt, v => (L[key] = v === "" ? undefined : Number(v)), "number");
+    const inp = f.querySelector("input");
+    inp.step = step;
+    return f;
+  };
+  wrap.append(el("div", { class: "g2" }, [
+    spin("Dust marks — 0 to 600", "n", 400, "10"),
+    spin("Spread from the path, px — 0 to 300", "spread", 140, "5"),
+  ]));
+  wrap.append(el("div", { class: "g2" }, [
+    spin("Brightness — 0 to 2", "bright", 1, "0.05"),
+    spin("Orange share — 0 to 1", "mix", 0.5, "0.05"),
+  ]));
+  wrap.append(spin("Flight duration, seconds — 1 to 20", "dur", 4.6, "0.2"));
+  return wrap;
+}
+
 function statsEditor() {
   const arr = (STATE.content.stats ||= []);
   return listEditor(arr, s => s.en, s => String(s.n),
@@ -693,8 +725,8 @@ const TABS = [
     parts: [["Contact routes", contactEditor], ["Headings & labels", () => i18nGroup(FIELDS.contact)]] },
   { id: "footer",  name: "Footer",  hint: "The drawing title block at the bottom.",
     parts: [["Title-block rows", footerEditor], ["Headings & labels", () => i18nGroup(FIELDS.footer)], ["Navigation", () => i18nGroup(FIELDS.nav)]] },
-  { id: "look",    name: "Appearance", hint: "The background pattern behind every section. Previews are rendered from the same declarations the page uses, so what you pick is what you get.",
-    parts: [["Background", appearanceEditor]] },
+  { id: "look",    name: "Appearance", hint: "The background pattern behind every section, and the rocket that crosses the hero once on load. Previews are rendered from the same declarations the page uses, so what you pick is what you get.",
+    parts: [["Background", appearanceEditor], ["Launch animation", launchEditor]] },
   { id: "seo",     name: "Sharing", hint: "The tab title, the search-result snippet, and the card people see when they paste your link. Facebook, LinkedIn and WhatsApp cache these hard — after changing the image, run the link through their debugger to force a refresh.",
     parts: [["Title, description, link preview", seoEditor]] },
   { id: "media",   name: "Media",   hint: "Logos, portrait, portfolio PDFs, CV. Live the moment they finish uploading." },

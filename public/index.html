@@ -242,9 +242,9 @@ main{padding:0 calc(var(--gutter) + var(--frame))}
 #launch .rk{position:absolute;left:0;top:0;offset-rotate:auto;offset-distance:0%;
   opacity:0;color:var(--structure);will-change:offset-distance,opacity}
 #launch .rk svg{display:block;width:clamp(140px,21vw,228px);height:auto}
-#launch.go .rk{animation:rk-fly 4.6s cubic-bezier(.5,0,.72,.62) forwards,
-                         rk-fade 4.6s linear forwards}
-#launch.go .arc .tr{animation:rk-trace 4.6s cubic-bezier(.5,0,.72,.62) forwards}
+#launch.go .rk{animation:rk-fly var(--rk-dur,4.6s) cubic-bezier(.5,0,.72,.62) forwards,
+                         rk-fade var(--rk-dur,4.6s) linear forwards}
+#launch.go .arc .tr{animation:rk-trace var(--rk-dur,4.6s) cubic-bezier(.5,0,.72,.62) forwards}
 #launch.go .flame{animation:rk-burn .42s ease-in-out infinite alternate;
   transform-origin:6px 35px;transform-box:fill-box}
 @keyframes rk-fly{to{offset-distance:100%}}
@@ -1617,13 +1617,33 @@ document.addEventListener("keydown", function(e){ if(e.key === "Escape" && pvOn)
 (function(){
   var host = document.getElementById("launch");
   if(!host || RM) return;
+
+  // Settings come from the appearance document, so density, spread and colour
+  // are tuned in /admin without a deploy. Every value is clamped: these are
+  // typed by hand, and one stray zero would build 40,000 nodes and hang the
+  // page before anyone saw the mistake.
+  function num(v, lo, hi, dflt){
+    v = Number(v);
+    return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : dflt;
+  }
+  var cfg = (CONTENT.appearance && CONTENT.appearance.launch) || {};
+  if(cfg.on === false) return;
+
   var rk = host.querySelector(".rk"),
       arc = host.querySelector(".arc"),
       line = arc.querySelector(".tr"),
       dustg = arc.querySelector(".dustg"),
       map = document.getElementById("map"),
       NS = "http://www.w3.org/2000/svg",
-      DUST = 38, DUR = 4600;
+      DUST   = Math.round(num(cfg.n, 0, 600, 400)),
+      SPREAD = num(cfg.spread, 0, 300, 140),
+      BRIGHT = num(cfg.bright, 0, 2, 1),
+      MIX    = num(cfg.mix, 0, 1, 0.5),
+      DUR    = num(cfg.dur, 1, 20, 4.6) * 1000,
+      // However dense the dust gets, only this many keep glinting. The eye
+      // cannot tell which marks twinkle among hundreds; the battery can.
+      TW_CAP = 70;
+  host.style.setProperty("--rk-dur", (DUR / 1000) + "s");
 
   // The same four-pointed survey mark the background patterns use, so the
   // trail is made of the page's own vocabulary rather than generic specks.
@@ -1679,25 +1699,39 @@ document.addEventListener("keydown", function(e){ if(e.key === "Escape" && pvOn)
         // Back off to the nozzle mouth so the marks leave the exhaust rather
         // than the nose; measured, so it follows the rocket's own size.
         lag = (rk.getBoundingClientRect().width || 200) * 0.34,
-        i, time, at, p, spread, ang, x, y, isDot, r, el;
+        tw = 0,
+        i, time, at, p, spread, ang, x, y, isDot, r, el, glints, hot;
     for(i = 0; i < DUST; i++){
       time = (i + 0.5) / DUST;
       at = Math.max(0, ease(time) * total - lag);
       p = line.getPointAtLength(at);
-      spread = 3 + rand() * 24;
+      // A power above 1 heaps the marks near the path and thins them outward,
+      // so raising the spread widens the trail instead of flattening it into
+      // an even haze.
+      spread = SPREAD * Math.pow(rand(), 1.8);
       ang = rand() * Math.PI * 2;
       x = p.x + Math.cos(ang) * spread;
       y = p.y + Math.sin(ang) * spread;
-      isDot = rand() < 0.34;
-      r = isDot ? 0.9 + rand() * 1.1 : 2 + rand() * 3.4;
+      isDot = rand() < 0.58;
+      r = isDot ? 0.7 + rand() * 1.2 : 1.8 + rand() * 3.2;
 
       el = document.createElementNS(NS, isDot ? "circle" : "path");
       if(isDot){ el.setAttribute("cx", x); el.setAttribute("cy", y); el.setAttribute("r", r); }
       else { el.setAttribute("d", sparkle(x, y, r)); }
-      el.setAttribute("class", "dust");
-      // Hot near the pad, cooling as it climbs.
-      el.setAttribute("fill", time < 0.42 ? "var(--signal)" : "var(--structure)");
-      el.style.setProperty("--rest", (isDot ? 0.32 : 0.52) - time * 0.1);
+
+      glints = !isDot && tw < TW_CAP && rand() < 0.55;
+      el.setAttribute("class", glints ? "dust tw" : "dust");
+      if(glints) tw++;
+
+      // Mixed rather than split at a hard line: orange is likelier near the
+      // pad and rarer higher up, so both colours sit side by side the whole
+      // way. A few of the hot ones take the flame's own amber.
+      hot = rand() < Math.min(1, Math.max(0, MIX * (1.35 - 0.7 * time)));
+      el.setAttribute("fill", hot
+        ? (rand() < 0.16 ? "#FFD08A" : "var(--signal)")
+        : "var(--structure)");
+
+      el.style.setProperty("--rest", ((isDot ? 0.62 : 1) * BRIGHT - time * 0.12).toFixed(3));
       el.style.animationDelay = (time * DUR + 70) + "ms";
       el.style.setProperty("--gd", (time * DUR + 1100 + rand() * 1800) + "ms");
       el.style.setProperty("--per", (2400 + rand() * 3000) + "ms");
