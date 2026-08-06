@@ -30,6 +30,7 @@ ditulis di README publik.
 | [015-viewer-cv-pdf.md](015-viewer-cv-pdf.md) | Sheet CV PDF.js, kenapa bukan iframe, dan panel inline yang dibuang |
 | [016-tes-dan-modul-murni.md](016-tes-dan-modul-murni.md) | Pemisahan fungsi murni dari Worker, dan 45 tes tanpa dependency |
 | [017-komentar-di-repo-ini.md](017-komentar-di-repo-ini.md) | Kenapa repo ini boleh berkomentar, dan batasnya |
+| [018-animasi-peluncuran-hero.md](018-animasi-peluncuran-hero.md) | Roket di hero: gravity turn, offset-path, dan kenapa bukan keyframe left/top |
 
 ## Aturan folder ini
 
