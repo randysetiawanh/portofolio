@@ -129,6 +129,56 @@ terbatas.
   kiri atas selamanya, jadi seluruh lapisan disembunyikan kecuali path-nya bisa
   diikuti.
 
+## Setelan ada di /admin, bukan di shell
+
+Angka kerapatan, sebaran, warna, dan durasi tinggal di dokumen `appearance`
+bersama pilihan pattern latar, dan diedit lewat tab **Appearance** di `/admin`.
+Menyetelnya tidak butuh deploy — sama seperti sisa konten situs ini (R-001).
+
+```json
+"launch": { "on": true, "n": 400, "spread": 140, "bright": 1, "mix": 0.5, "dur": 4.6 }
+```
+
+| Kunci | Arti | Rentang aman |
+|---|---|---|
+| `on` | Tampilkan atau tidak | boolean |
+| `n` | Jumlah butir serbuk | 0–600 |
+| `spread` | Sebaran tegak lurus jalur, px | 0–300 |
+| `bright` | Opasitas endapan | 0–2 |
+| `mix` | Porsi oranye | 0–1 |
+| `dur` | Durasi terbang, detik | 1–20 |
+
+**Semua nilai di-clamp di halaman** lewat `num(v, lo, hi, dflt)`. Ini bukan
+kehati-hatian berlebihan: angkanya diketik tangan, dan satu nol nyasar pada `n`
+akan membangun 40.000 simpul SVG dan menggantung halaman sebelum ada yang sadar
+salah ketik. Nilai yang bukan angka jatuh ke bawaan, bukan ke `NaN`.
+
+`dur` diteruskan ke CSS sebagai custom property `--rk-dur`, dan seluruh
+`@keyframes` memakai `var(--rk-dur, 4.6s)`. Kalau kunci ini belum ada di D1,
+bawaannya sama persis dengan nilai di atas — jadi urutan deploy bebas, shell
+maupun konten boleh duluan.
+
+## Warna bercampur, bukan terbagi
+
+Versi pertama membelah di satu titik: 42% pertama semua oranye, sisanya semua
+biru. Hasilnya dua blok warna, bukan taburan.
+
+Sekarang tiap butir mengundi warnanya sendiri dengan peluang yang bergeser:
+
+```
+pOranye = mix × (1.35 − 0.7 × waktu)
+```
+
+Pada `mix` 0.5 itu berarti sekitar 68% oranye di dekat peluncuran dan 33% di
+puncak — selalu dua warna berdampingan, cuma perbandingannya berubah. 16% dari
+yang oranye memakai amber `#FFD08A`, warna inti api roketnya sendiri.
+
+## Batas kelip
+
+Berapa pun `n`, hanya **70 butir** yang berkelip (`TW_CAP`). Sisanya mengendap
+diam. Mata tidak bisa membedakan butir mana yang berkelip di antara ratusan;
+baterai bisa. Tanpa batas ini, `n` 400 berarti sekitar 168 animasi abadi.
+
 ## Ongkos
 
 Shell naik dari 118 KB ke 124 KB. Seluruhnya SVG inline; tidak ada request
@@ -157,3 +207,8 @@ tambahan, tidak ada dependency, tidak ada gambar.
   `path` telanjang — serbuknya path juga, dan akan hilang tanpa error.
 - **R-154** — Kelip tiap butir wajib punya periode dan jeda sendiri. Serempak
   terbaca seperti lampu disko.
+- **R-155** — Setelan animasi tinggal di dokumen `appearance`, bukan sebagai
+  konstanta di shell. Menyetelnya tidak boleh butuh deploy.
+- **R-156** — Setiap nilai yang datang dari `/admin` di-clamp di halaman, dengan
+  nilai bukan-angka jatuh ke bawaan. Jangan percaya angka yang diketik tangan.
+- **R-157** — Jumlah butir yang berkelip dibatasi `TW_CAP`, terlepas dari `n`.

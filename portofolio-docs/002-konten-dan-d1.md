@@ -38,7 +38,7 @@ Daftar kanoniknya ada di `SECTIONS` (`src/content.ts:9`). Endpoint
 | `credentials` | Stempel sertifikat |
 | `contact` | Rute kontak langsung |
 | `footer` | Baris title block |
-| `appearance` | Pilihan pattern latar |
+| `appearance` | Pilihan pattern latar, dan setelan animasi peluncuran (`launch`) |
 | `seo` | Judul, deskripsi, kartu link preview |
 
 ## Dwibahasa
