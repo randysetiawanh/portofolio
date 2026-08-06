@@ -81,6 +81,24 @@ Jebakannya: kalau dua tab admin dibuka bersamaan di dua browser, yang menyimpan
 belakangan menimpa seluruh perubahan yang pertama. Tidak ada penguncian dan
 tidak ada deteksi konflik.
 
+## Nilai dwibahasa di tab Contact
+
+Baris kontak menyimpan teks tampil sebagai **string biasa** kalau bacaannya sama
+di dua bahasa (alamat email, nomor telepon), dan sebagai `{en,id}` kalau tidak —
+baris CV berbunyi "See PDF" / "Lihat PDF" sejak migration `0014`.
+
+Editornya sempat tertinggal: satu field tunggal merender objek itu jadi
+`[object Object]`, dan satu ketikan di situ mengubahnya jadi string, diam-diam
+membuang label Indonesia. Diperbaiki 6 Agustus 2026 — sekarang ada sepasang
+field EN/ID, dan penulisannya balik jadi string kalau keduanya sama.
+
+Flag `viewer` juga tidak punya kontrol sama sekali; sekarang ada checkbox
+"Opens the in-page PDF viewer".
+
+**Pelajarannya:** migration yang mengubah *bentuk* sebuah dokumen wajib diikuti
+penyesuaian editornya di sesi yang sama. Kalau tidak, editornya berbohong dan
+satu penyimpanan bisa merusak data yang baru saja dimigrasikan.
+
 ## Tab Advanced
 
 Tab `raw` menampilkan JSON mentah tiap section dengan tombol simpan per section.
@@ -108,3 +126,7 @@ sebelum dikirim, dan `PUT` menolak body yang bukan JSON valid.
   perubahannya tidak pernah tersimpan meski formnya jalan.
 - **R-031** — Jangan membuka admin di dua tab sekaligus. Save terakhir menang
   dan menimpa seluruh section.
+- **R-032** — Migration yang mengubah bentuk sebuah dokumen wajib diikuti
+  penyesuaian editornya di sesi yang sama.
+- **R-033** — Field yang bisa berisi `{en,id}` dirender sebagai sepasang input,
+  tidak pernah sebagai satu field.

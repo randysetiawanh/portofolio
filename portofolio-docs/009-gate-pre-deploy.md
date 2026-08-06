@@ -66,9 +66,11 @@ gagal.
 
 ## Batasnya
 
-Gate ini memeriksa **shell dan template admin**, bukan logika Worker.
-`safeMediaKey()`, validasi kontak, `seoBlock()`, dan `attr()` tidak punya tes
-sama sekali — lihat [013-utang-teknis.md](013-utang-teknis.md).
+Gate ini memeriksa **shell dan template admin**, bukan logika Worker. Sejak
+6 Agustus 2026 logika itu ditutup oleh suite terpisah yang jalan lebih dulu di
+`predeploy` — lihat [016-tes-dan-modul-murni.md](016-tes-dan-modul-murni.md).
+
+Urutan `predeploy` sekarang: `npm test` → `check-shell.mjs` → `wrangler deploy`.
 
 ## Rules
 

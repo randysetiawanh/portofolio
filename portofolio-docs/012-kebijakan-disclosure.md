@@ -28,10 +28,9 @@ Pola yang dipakai di sketch: batang abu-abu (`fill:var(--dim)` dengan
 itu — misalnya `[▓▓▓] LETTERS DISPATCHED`. Bentuk itu yang harus ditiru sketch
 baru.
 
-**Satu pelanggaran yang masih ada.** Sketch `phone` di `public/index.html:1081`
-memuat teks literal `65 STATE ENTERPRISES` — angka konkret dari sistem klien,
-persis yang seharusnya jadi redaction bar. Ini belum diperbaiki. Kalau menyentuh
-area itu, ganti jadi batang sensor dengan label `STATE ENTERPRISES`.
+Sketch `phone` sempat memuat teks literal `65 STATE ENTERPRISES` — angka konkret
+dari sistem klien, persis yang seharusnya jadi batang sensor. Diperbaiki
+6 Agustus 2026 jadi batang + label `STATE ENTERPRISES`.
 
 Sisa teks di sketch (nama laporan, periode, nominal Rupiah contoh) bersifat
 ilustratif, bukan data nyata. Tapi kalau menambah sketch baru, jangan menyalin

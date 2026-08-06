@@ -573,21 +573,37 @@ function credentialsEditor() {
 
 function contactEditor() {
   const arr = (STATE.content.contact ||= []);
-  return listEditor(arr, c => c.en, c => c.value,
+  return listEditor(arr, c => c.en,
+    c => (c.value && typeof c.value === "object" ? c.value.en : c.value),
     (c, b) => {
       b.append(el("div", { class: "g2" }, [
         field("Label — EN", c.en, v => (c.en = v)),
         field("Label — ID", c.id, v => (c.id = v)),
       ]));
+      // The shown text is a plain string for rows that read the same in both
+      // languages — an address, a phone number — and {en,id} for the ones that
+      // do not, such as the CV row's "See PDF" / "Lihat PDF". Editing it as a
+      // single field rendered the object as [object Object] and turned it into
+      // a string on the first keystroke, which silently dropped the ID label.
+      const bilingual = c.value && typeof c.value === "object";
+      const pair = {
+        en: bilingual ? c.value.en ?? "" : c.value ?? "",
+        id: bilingual ? c.value.id ?? c.value.en ?? "" : c.value ?? "",
+      };
+      const writeValue = () => {
+        c.value = pair.en === pair.id ? pair.en : { en: pair.en, id: pair.id };
+      };
       b.append(el("div", { class: "g2" }, [
-        field("Shown value", c.value, v => (c.value = v)),
-        field("Link (href)", c.href, v => (c.href = v)),
+        field("Shown value — EN", pair.en, v => { pair.en = v; writeValue(); }),
+        field("Shown value — ID", pair.id, v => { pair.id = v; writeValue(); }),
       ]));
+      b.append(field("Link (href)", c.href, v => (c.href = v)));
       b.append(mediaField("…or pick a file to link to", c.href || "", v => (c.href = v), "cv"));
       b.append(el("div", { class: "row" }, [
         check("Monospace digits", c.num, v => (c.num = v || undefined)),
         check("Accent colour", c.accent, v => (c.accent = v || undefined)),
         check("Download attribute", c.download, v => (c.download = v || undefined)),
+        check("Opens the in-page PDF viewer", c.viewer, v => (c.viewer = v || undefined)),
       ]));
     }, () => ({ en: "", id: "", value: "", href: "" }));
 }

@@ -28,6 +28,8 @@ ditulis di README publik.
 | [013-utang-teknis.md](013-utang-teknis.md) | Yang belum beres, beserta risikonya |
 | [014-path-layar-sempit.md](014-path-layar-sempit.md) | Gantt jadi batang durasi di bawah 820px, dan cara preview tanpa deploy |
 | [015-viewer-cv-pdf.md](015-viewer-cv-pdf.md) | Sheet CV PDF.js, kenapa bukan iframe, dan panel inline yang dibuang |
+| [016-tes-dan-modul-murni.md](016-tes-dan-modul-murni.md) | Pemisahan fungsi murni dari Worker, dan 45 tes tanpa dependency |
+| [017-komentar-di-repo-ini.md](017-komentar-di-repo-ini.md) | Kenapa repo ini boleh berkomentar, dan batasnya |
 
 ## Aturan folder ini
 
