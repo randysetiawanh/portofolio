@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/plexmono-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="theme-color" content="#080C11" id="themeColor">
 <!-- Everything between these markers is replaced by the Worker from the `seo`
      content document, so the title, description and link-preview image are
@@ -166,11 +169,8 @@ button,input,textarea{font:inherit;color:inherit}
   background:color-mix(in srgb,var(--ink) 86%,transparent);
   backdrop-filter:blur(14px);
 }
-#bar .sig{
-  font-family:var(--f-mono);font-weight:500;font-size:.75rem;letter-spacing:.2em;
-  color:var(--text-strong);
-}
-#bar .sig s{color:var(--signal);text-decoration:none}
+#bar .brand{display:flex;align-items:center}
+#bar .mk{display:block;color:var(--text-strong)}
 #nav{display:flex;gap:.15rem;margin-left:auto}
 #nav a{
   font-family:var(--f-mono);font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;
@@ -746,7 +746,12 @@ footer{
 </div>
 
 <header id="bar">
-  <span class="sig">RSH<s>/</s>01</span>
+  <span class="brand">
+    <svg class="mk" viewBox="0 0 32 32" width="24" height="24" role="img" aria-label="RSH">
+      <path stroke="currentColor" stroke-width="4" fill="none" d="M9 26 V6 M9 6 H16.5 Q22 6 22 10.25 Q22 14.5 16.5 14.5 H9 M13.5 14.5 L22 26"/>
+      <rect x="25" y="20.5" width="5.5" height="5.5" fill="var(--signal)"/>
+    </svg>
+  </span>
   <nav id="nav" aria-label="Sections">
     <a href="#hero" data-t="nav.map">Map</a>
     <a href="#services" data-t="nav.services">Services</a>
@@ -1348,7 +1353,10 @@ function buildLayers(){
       var g = it[2] && ICONS[it[2]]
         ? '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="'+ICONS[it[2]]+'"/></svg>'
         : '<span class="ic node" aria-hidden="true"></span>';
-      h += '<span class="it'+(it[1]===3?" core":"")+'">'+g+'<b>'+esc(it[0])+'</b><span class="dep">'+dep+'</span></span>';
+      // Product names stay a plain string in every language; descriptive
+      // entries ("System integration") carry an {en,id} pair instead.
+      var nm = (it[0] && it[0].en) ? (it[0][lang] || it[0].en) : it[0];
+      h += '<span class="it'+(it[1]===3?" core":"")+'">'+g+'<b>'+esc(nm)+'</b><span class="dep">'+dep+'</span></span>';
     });
     h += '</div></div>';
   });

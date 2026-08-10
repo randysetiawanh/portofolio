@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The R-period monogram: the heavy R with the signal full stop the site's
+       wordmark ends on. Strokes follow the tab's theme. -->
+  <style>
+    .k{stroke:#0F1821}
+    @media (prefers-color-scheme:dark){.k{stroke:#DCE5ED}}
+  </style>
+  <path class="k" stroke-width="4" fill="none" d="M9 26 V6 M9 6 H16.5 Q22 6 22 10.25 Q22 14.5 16.5 14.5 H9 M13.5 14.5 L22 26"/>
+  <rect x="25" y="20.5" width="5.5" height="5.5" fill="#FF7A18"/>
+</svg>
