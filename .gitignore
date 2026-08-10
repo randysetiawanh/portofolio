@@ -18,6 +18,12 @@ worker-configuration.d.ts
 *.pdf
 !public/porto/*.pdf
 
+# Scratch: everything the generators write. The editable portfolio HTML carries
+# ministry screenshots inline as data URIs, and .html is not covered by the
+# *.pdf rule above, so the whole directory stays out of a public clone.
+# Publishing is a deliberate copy out of here into public/porto/.
+tmp/
+
 # Portrait master. public/randy.jpg is the optimised copy the site actually
 # uses; the 1.5 MB PNG it came from does not belong in git.
 public/randy.png
