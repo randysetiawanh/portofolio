@@ -15,6 +15,9 @@ import { verifyAccess } from "./access";
 import { readAll, writeSection, bustCache, safeMediaKey, SECTIONS, type Section } from "./content";
 import { ADMIN_HTML } from "./admin-ui";
 import { pageStyle, swatchStyle, PATTERNS } from "./patterns";
+import { attr, seoBlock, type Seo } from "./render";
+import { headerSafe, buildMime } from "./mail";
+import { validateContact } from "./validate";
 
 interface Env {
   ASSETS: Fetcher;
@@ -29,7 +32,6 @@ interface Env {
   ACCESS_AUD?: string;
 }
 
-const MAX = { name: 100, email: 254, message: 5000 } as const;
 const MAX_UPLOAD = 15 * 1024 * 1024;
 
 /* ── view counter ─────────────────────────────────────────────────────── */
@@ -62,35 +64,6 @@ const json = (body: unknown, status = 200) =>
 const text = (body: string, status = 200) =>
   new Response(body, { status, headers: { "content-type": "text/plain; charset=utf-8" } });
 
-const headerSafe = (s: string) => s.replace(/[\r\n]+/g, " ").trim();
-
-function base64(input: string): string {
-  const bytes = new TextEncoder().encode(input);
-  let binary = "";
-  for (const b of bytes) binary += String.fromCharCode(b);
-  return btoa(binary);
-}
-const encodeHeader = (v: string) => (/^[\x20-\x7E]*$/.test(v) ? v : `=?utf-8?B?${base64(v)}?=`);
-
-function buildMime(o: {
-  from: string; to: string; replyName: string; replyTo: string; subject: string; body: string;
-}): string {
-  const domain = o.from.split("@")[1] ?? "localhost";
-  return [
-    `From: Website <${o.from}>`,
-    `To: <${o.to}>`,
-    `Reply-To: ${encodeHeader(o.replyName)} <${o.replyTo}>`,
-    `Subject: ${encodeHeader(o.subject)}`,
-    `Message-ID: <${crypto.randomUUID()}@${domain}>`,
-    `Date: ${new Date().toUTCString()}`,
-    "MIME-Version: 1.0",
-    'Content-Type: text/plain; charset="utf-8"',
-    "Content-Transfer-Encoding: base64",
-    "",
-    base64(o.body).replace(/(.{76})/g, "$1\r\n"),
-  ].join("\r\n");
-}
-
 async function verifyTurnstile(secret: string, token: string, ip: string | null): Promise<boolean> {
   const form = new FormData();
   form.append("secret", secret);
@@ -108,41 +81,7 @@ const SLOT = "<!--content-slot-->";
 const SEO_START = "<!--seo-start-->";
 const SEO_END = "<!--seo-end-->";
 
-/** Attribute-safe. Content is authored in /admin, so an unescaped quote here
- *  would end the attribute and put the rest of the string into the markup. */
-function attr(s: unknown): string {
-  return String(s ?? "")
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
 
-interface Seo {
-  title?: string; description?: string; url?: string;
-  ogTitle?: string; ogDescription?: string; image?: string;
-}
-
-/** Title, description and the link-preview card. Crawlers do not run scripts
- *  and several reject relative image URLs outright, so this is rendered as
- *  real markup and every URL is made absolute. */
-function seoBlock(seo: Seo | undefined, fallback: string): string {
-  if (!seo?.title) return fallback;
-  const site = (seo.url || "https://rancores.space/").replace(/\/+$/, "") + "/";
-  let img = seo.image || "";
-  if (img && !/^https?:\/\//i.test(img)) img = site + img.replace(/^\/+/, "");
-
-  const desc = seo.description ?? "";
-  return [
-    `<title>${attr(seo.title)}</title>`,
-    `<meta name="description" content="${attr(desc)}">`,
-    `<link rel="canonical" href="${attr(site)}">`,
-    `<meta property="og:type" content="website">`,
-    `<meta property="og:url" content="${attr(site)}">`,
-    `<meta property="og:title" content="${attr(seo.ogTitle || seo.title)}">`,
-    `<meta property="og:description" content="${attr(seo.ogDescription || desc)}">`,
-    img ? `<meta property="og:image" content="${attr(img)}">` : "",
-    `<meta name="twitter:card" content="${img ? "summary_large_image" : "summary"}">`,
-  ].join("\n");
-}
 
 async function renderPage(request: Request, env: Env): Promise<Response> {
   // Fetched per request, never memoized: an isolate that boots while a deploy
@@ -291,16 +230,9 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
     return json({ error: "malformed" }, 400);
   }
 
-  const name = String(body.name ?? "").trim();
-  const email = String(body.email ?? "").trim();
-  const message = String(body.message ?? "").trim();
-  const token = String(body.token ?? "");
-
-  if (!name || !email || !message) return json({ error: "incomplete" }, 400);
-  if (name.length > MAX.name || email.length > MAX.email || message.length > MAX.message) {
-    return json({ error: "too_long" }, 413);
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "email" }, 400);
+  const checked = validateContact(body);
+  if (!checked.ok) return json({ error: checked.error }, checked.status);
+  const { name, email, message, token } = checked.fields;
 
   if (!env.TURNSTILE_SECRET) return json({ error: "unconfigured" }, 503);
   const ok = await verifyTurnstile(

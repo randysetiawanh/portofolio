@@ -566,6 +566,38 @@ function appearanceEditor() {
   return wrap;
 }
 
+/** The hero launch animation. Every number is a knob on the page rather than a
+ *  constant in the shell, so density and colour are tuned here without a
+ *  deploy. The page clamps whatever it reads, so a typo cannot hang it. */
+function launchEditor() {
+  const app = (STATE.content.appearance ||= {});
+  const L = (app.launch ||= {});
+  const wrap = el("div", { class: "body", style: "padding:0" });
+
+  wrap.append(el("div", { class: "row" }, [
+    check("Show the launch animation", L.on !== false, v => (L.on = v)),
+  ]));
+  wrap.append(el("p", { class: "hint", style: "margin:.2rem 0 .6rem",
+    text: "Hidden automatically for visitors who ask for reduced motion." }));
+
+  const spin = (label, key, dflt, step) => {
+    const f = field(label, L[key] ?? dflt, v => (L[key] = v === "" ? undefined : Number(v)), "number");
+    const inp = f.querySelector("input");
+    inp.step = step;
+    return f;
+  };
+  wrap.append(el("div", { class: "g2" }, [
+    spin("Dust marks — 0 to 600", "n", 400, "10"),
+    spin("Spread from the path, px — 0 to 300", "spread", 140, "5"),
+  ]));
+  wrap.append(el("div", { class: "g2" }, [
+    spin("Brightness — 0 to 2", "bright", 1, "0.05"),
+    spin("Orange share — 0 to 1", "mix", 0.5, "0.05"),
+  ]));
+  wrap.append(spin("Flight duration, seconds — 1 to 20", "dur", 4.6, "0.2"));
+  return wrap;
+}
+
 function statsEditor() {
   const arr = (STATE.content.stats ||= []);
   return listEditor(arr, s => s.en, s => String(s.n),
@@ -598,21 +630,37 @@ function credentialsEditor() {
 
 function contactEditor() {
   const arr = (STATE.content.contact ||= []);
-  return listEditor(arr, c => c.en, c => c.value,
+  return listEditor(arr, c => c.en,
+    c => (c.value && typeof c.value === "object" ? c.value.en : c.value),
     (c, b) => {
       b.append(el("div", { class: "g2" }, [
         field("Label — EN", c.en, v => (c.en = v)),
         field("Label — ID", c.id, v => (c.id = v)),
       ]));
+      // The shown text is a plain string for rows that read the same in both
+      // languages — an address, a phone number — and {en,id} for the ones that
+      // do not, such as the CV row's "See PDF" / "Lihat PDF". Editing it as a
+      // single field rendered the object as [object Object] and turned it into
+      // a string on the first keystroke, which silently dropped the ID label.
+      const bilingual = c.value && typeof c.value === "object";
+      const pair = {
+        en: bilingual ? c.value.en ?? "" : c.value ?? "",
+        id: bilingual ? c.value.id ?? c.value.en ?? "" : c.value ?? "",
+      };
+      const writeValue = () => {
+        c.value = pair.en === pair.id ? pair.en : { en: pair.en, id: pair.id };
+      };
       b.append(el("div", { class: "g2" }, [
-        field("Shown value", c.value, v => (c.value = v)),
-        field("Link (href)", c.href, v => (c.href = v)),
+        field("Shown value — EN", pair.en, v => { pair.en = v; writeValue(); }),
+        field("Shown value — ID", pair.id, v => { pair.id = v; writeValue(); }),
       ]));
+      b.append(field("Link (href)", c.href, v => (c.href = v)));
       b.append(mediaField("…or pick a file to link to", c.href || "", v => (c.href = v), "cv"));
       b.append(el("div", { class: "row" }, [
         check("Monospace digits", c.num, v => (c.num = v || undefined)),
         check("Accent colour", c.accent, v => (c.accent = v || undefined)),
         check("Download attribute", c.download, v => (c.download = v || undefined)),
+        check("Opens the in-page PDF viewer", c.viewer, v => (c.viewer = v || undefined)),
       ]));
     }, () => ({ en: "", id: "", value: "", href: "" }),
     c => c.viewer);        // the CV has its own tab
@@ -631,7 +679,7 @@ function cvEditor() {
     const cv = arr.find(c => c.viewer);
     if (!cv) {
       host.append(el("p", { class: "hint",
-        text: "No CV row yet. Adding one puts the reader back on the contact section." }));
+        text: "No CV row yet. Adding one puts it back among the contact links." }));
       const add = el("button", { class: "act", type: "button", text: "+ Add the CV" });
       add.addEventListener("click", () => {
         arr.push({ en: "Curriculum vitae", id: "Curriculum vitae",
@@ -656,11 +704,9 @@ function cvEditor() {
     ]));
     b.append(field("PDF path", cv.href, v => (cv.href = v)));
     b.append(mediaField("…or pick the file", cv.href || "", v => { cv.href = v; draw(); }, "cv"));
-    b.append(field("Reader height on the page, in pixels — blank for 200",
-      cv.paneH, v => (cv.paneH = Number(v) > 0 ? Number(v) : undefined), "number"));
     const rm = el("button", { class: "act warn tiny", type: "button", text: "Remove the CV" });
     rm.addEventListener("click", () => {
-      if (confirm("Remove the CV? The reader disappears from the contact section.")) {
+      if (confirm("Remove the CV? The row disappears from the contact links.")) {
         arr.splice(arr.findIndex(c => c.viewer), 1);
         draw();
       }
@@ -773,15 +819,15 @@ const TABS = [
     hint: "The form on the left and the direct links on the right. The CV sits below them and has its own tab.",
     parts: [["Contact routes", contactEditor], ["Form labels & headings", () => i18nGroup(FIELDS.contact)]] },
   { id: "cv",      name: "CV", no: "10",
-    hint: "The reader under the contact links: it renders the PDF on the page itself, so the file you pick here is what visitors read. It is not listed as a link — the reader is the link.",
+    hint: "The Curriculum vitae row in the contact links. Clicking it opens the PDF in a full-screen sheet rendered on the page, so the file you pick here is what visitors read.",
     parts: [["Curriculum vitae", cvEditor]] },
   { id: "footer",  name: "Footer",
     hint: "The drawing title block at the bottom.",
     parts: [["Title-block rows", footerEditor], ["Headings & labels", () => i18nGroup(FIELDS.footer)], ["Navigation", () => i18nGroup(FIELDS.nav)]] },
 
   { grp: "The site" },
-  { id: "look",    name: "Appearance", hint: "The background pattern behind every section. Previews are rendered from the same declarations the page uses, so what you pick is what you get.",
-    parts: [["Background", appearanceEditor]] },
+  { id: "look",    name: "Appearance", hint: "The background pattern behind every section, and the rocket that crosses the hero once on load. Previews are rendered from the same declarations the page uses, so what you pick is what you get.",
+    parts: [["Background", appearanceEditor], ["Launch animation", launchEditor]] },
   { id: "seo",     name: "Sharing", hint: "The tab title, the search-result snippet, and the card people see when they paste your link. Facebook, LinkedIn and WhatsApp cache these hard — after changing the image, run the link through their debugger to force a refresh.",
     parts: [["Title, description, link preview", seoEditor]] },
   { id: "media",   name: "Media",   hint: "Logos, portrait, portfolio PDFs, CV. Live the moment they finish uploading." },

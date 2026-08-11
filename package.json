@@ -10,10 +10,12 @@
     "types": "wrangler types",
     "tail": "wrangler tail",
     "check": "node scripts/check-shell.mjs",
-    "predeploy": "node scripts/check-shell.mjs"
+    "predeploy": "npm run test && node scripts/check-shell.mjs",
+    "test": "node --test \"test/*.test.ts\""
   },
   "devDependencies": {
     "typescript": "^5.7.2",
     "wrangler": "^4.112.0"
-  }
+  },
+  "type": "module"
 }

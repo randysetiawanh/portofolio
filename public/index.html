@@ -209,7 +209,48 @@ main{padding:0 calc(var(--gutter) + var(--frame))}
 .prose + .prose{margin-top:1rem}
 
 /* ── hero ───────────────────────────────────────────────────── */
-#hero{padding-top:clamp(2.5rem,6vw,4.5rem)}
+#hero{padding-top:clamp(2.5rem,6vw,4.5rem);position:relative}
+
+/* ── launch ─────────────────────────────────────────────────────
+   Rises out of the lower left and flattens toward the top right — a
+   gravity turn rather than a straight diagonal, because the hero is
+   wide and short and a straight line across it reads as level flight.
+   Only offset-distance and opacity change per frame, so nothing here
+   touches layout; an earlier version animated left/top through six
+   keyframe stops and was visibly angular between them. */
+#launch{position:absolute;inset:0;overflow:hidden;z-index:0;pointer-events:none;display:none}
+/* Without offset-path the rocket would sit in the top-left corner for
+   good, so it is shown only where the path can actually be followed. */
+@supports (offset-path:path("M0 0L1 1")){#launch{display:block}}
+#hero > .coord,#hero > h1,#hero > .thesis,#hero > #map{position:relative;z-index:1}
+#launch .arc{position:absolute;inset:0;overflow:visible}
+/* Scoped to .tr, never to `path`: the dust marks are paths too, and a bare
+   element selector would give them a stroke and wipe out their fill. */
+#launch .arc .tr{fill:none;stroke:var(--structure);stroke-width:1;opacity:.3;
+  stroke-dasharray:100;stroke-dashoffset:100}
+/* Deposited where the rocket actually was, then left behind — the marks are
+   the same survey sparkle the background pattern uses. */
+#launch .dust{opacity:0;transform-box:fill-box;transform-origin:center}
+#launch.go .dust{animation:rk-settle 1.5s cubic-bezier(.16,1,.3,1) forwards,
+  rk-glint var(--per,3s) ease-in-out var(--gd,2s) infinite alternate}
+@keyframes rk-settle{
+  0%{opacity:0;scale:.35;rotate:-25deg}
+  22%{opacity:1;scale:1.15}
+  100%{opacity:var(--rest,.4);scale:1;rotate:0deg}
+}
+@keyframes rk-glint{from{opacity:var(--rest,.4)}to{opacity:calc(var(--rest,.4) * .28)}}
+#launch .rk{position:absolute;left:0;top:0;offset-rotate:auto;offset-distance:0%;
+  opacity:0;color:var(--structure);will-change:offset-distance,opacity}
+#launch .rk svg{display:block;width:clamp(140px,21vw,228px);height:auto}
+#launch.go .rk{animation:rk-fly var(--rk-dur,4.6s) cubic-bezier(.5,0,.72,.62) forwards,
+                         rk-fade var(--rk-dur,4.6s) linear forwards}
+#launch.go .arc .tr{animation:rk-trace var(--rk-dur,4.6s) cubic-bezier(.5,0,.72,.62) forwards}
+#launch.go .flame{animation:rk-burn .42s ease-in-out infinite alternate;
+  transform-origin:6px 35px;transform-box:fill-box}
+@keyframes rk-fly{to{offset-distance:100%}}
+@keyframes rk-fade{0%{opacity:0}7%{opacity:1}88%{opacity:1}100%{opacity:0}}
+@keyframes rk-trace{to{stroke-dashoffset:0}}
+@keyframes rk-burn{from{scale:1 1;opacity:.95}to{scale:.86 .92;opacity:.72}}
 .coord{display:flex;column-gap:0;row-gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem}
 /* separator between the plain items; the badge stands apart and skips it */
 .coord .lbl:not(:first-child):not(.avail)::before{
@@ -294,15 +335,22 @@ h1 em{font-style:normal;color:var(--signal)}
 #maplist > ul > li{border-left:1px solid var(--rule);padding-left:1rem;margin-left:.35rem}
 #maplist > ul > li + li{margin-top:1.1rem}
 #maplist .dm{display:block;margin-bottom:.5rem}
+/* justify-content is explicit because this is a <button>: WebKit centres button
+   content in its UA sheet, and text-align does not reach a flex container. */
 #maplist .lf{
-  display:flex;align-items:center;gap:.6rem;width:100%;text-align:left;
+  display:flex;align-items:center;justify-content:flex-start;gap:.6rem;
+  width:100%;text-align:left;
   background:var(--panel-2);border:1px solid var(--rule);padding:.55rem .7rem;
   cursor:pointer;margin-bottom:.4rem;
 }
-#maplist .lf .d{width:7px;height:7px;background:var(--live);flex:none}
+/* The status square must not be caught by the runtime rule below — an auto
+   left margin on it pushes the whole row off the left edge by however much
+   space the name happens to leave, so no two rows line up. */
+#maplist .lf .d{width:7px;height:7px;background:var(--live);flex:none;align-self:center}
 #maplist .lf .d.idle{background:var(--idle)}
-#maplist .lf strong{font-variation-settings:'wdth' 104,'wght' 600;font-weight:400;font-size:.9375rem}
-#maplist .lf span{margin-left:auto;font-family:var(--f-mono);font-size:.625rem;color:var(--dim)}
+#maplist .lf strong{font-variation-settings:'wdth' 104,'wght' 600;font-weight:400;font-size:.9375rem;min-width:0}
+#maplist .lf .rt{margin-left:auto;padding-left:.6rem;font-family:var(--f-mono);
+  font-size:.625rem;color:var(--dim);flex:none;white-space:nowrap}
 
 .legend{display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center;padding:.6rem 1rem;border-top:var(--sheet)}
 .legend .k{display:flex;align-items:center;gap:.4rem}
@@ -384,6 +432,10 @@ h1 em{font-style:normal;color:var(--signal)}
   display:grid;grid-template-columns:2rem minmax(0,12rem) 8.5rem minmax(0,1fr);
   gap:.75rem;align-items:center;padding:.35rem 0;
 }
+/* The wide layout reads duration off the bar's length against the axis, so the
+   printed readout is dropped entirely rather than merely hidden — display:none
+   keeps it out of the grid, which still expects four cells. */
+.row-t .dur{display:none}
 /* Logo plate. The monogram sits underneath and shows through until a real
    logo file loads, so a missing file is never a broken image. */
 .mark{
@@ -413,8 +465,12 @@ h1 em{font-style:normal;color:var(--signal)}
 .row-t .when b{color:var(--signal);font-weight:400}
 .trk{position:relative;height:24px}
 .trk::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--rule-soft)}
+/* Geometry arrives as custom properties rather than inline left/width, so the
+   narrow layout can swap the bar from "when it ran" to "how long it ran"
+   without fighting an inline style. */
 .bar{
   position:absolute;top:50%;transform:translateY(-50%);height:14px;min-width:5px;
+  left:var(--l);width:var(--w);
   border:1px solid var(--structure);background:color-mix(in srgb,var(--structure) 22%,transparent);
   cursor:pointer;transition:filter .18s,box-shadow .18s;
 }
@@ -436,14 +492,39 @@ h1 em{font-style:normal;color:var(--signal)}
 .reveal.in .bar{clip-path:inset(0 0 0 0)}
 
 @media (max-width:820px){
-  /* Stack: identity first, timeline underneath at full width. Nothing is
-     dropped and nothing needs sideways scrolling. */
-  .row-t{grid-template-columns:2rem 1fr auto;gap:.2rem .6rem;padding:.6rem 0;
-         border-bottom:1px dashed var(--rule-soft)}
-  .row-t .mark{grid-row:span 2}
-  .row-t .when{text-align:right}
-  .row-t .trk{grid-column:2 / -1;height:18px;margin-top:.3rem}
-  .axis span{font-size:.5625rem}
+  /* A gantt needs its scale on screen. Here the axis scrolls away long before
+     the rows do, and an 11-year span squeezes a five-month posting into 12px —
+     so the bar carries no readable position, and the tooltip that held the
+     duration is off on touch anyway.
+     The bar stops answering "when" and starts answering "how long": every one
+     starts at the left, its length is duration against the longest engagement,
+     and the figure is printed beside it instead of hovered. */
+  .axis{display:none}
+  .row-t .dur{display:block}
+  .bar{left:0;width:var(--d)}
+  .bar.now::after{display:none}
+
+  /* Newest first — the reading order a phone wants. DOM order stays
+     chronological for assistive tech and for the wide layout. */
+  .grp{display:flex;flex-direction:column-reverse}
+  .grp > .lbl{order:1;margin-bottom:.85rem}
+
+  .row-t{
+    grid-template-columns:30px minmax(0,1fr) auto;
+    gap:.3rem .7rem;align-items:start;padding:.75rem 0;
+    border-bottom:1px dashed var(--rule-soft);
+  }
+  .row-t .mark{grid-column:1;grid-row:1 / span 2;align-self:start;margin-top:.1rem}
+  .row-t .who{grid-column:2;grid-row:1}
+  .row-t .when{grid-column:3;grid-row:1;justify-self:end;margin-top:.15rem}
+  .row-t .trk{grid-column:2;grid-row:2;height:14px;align-self:center;margin-top:.3rem}
+  .row-t .dur{
+    grid-column:3;grid-row:2;justify-self:end;align-self:center;margin-top:.3rem;
+    font-family:var(--f-mono);font-size:.625rem;letter-spacing:.1em;
+    color:var(--text-strong);text-transform:uppercase;white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .row-t[data-open="1"] .dur{color:var(--signal)}
 }
 .roles{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--rule);border:var(--sheet);border-top:0}
 .roles article{background:var(--panel);padding:1.1rem}
@@ -567,12 +648,12 @@ h1 em{font-style:normal;color:var(--signal)}
 }
 #pdfview .ph .x:hover{border-color:var(--signal);color:var(--signal)}
 #pdfview .pb{flex:1;background:var(--panel)}
-#pdfview .pb,#cvpane .pv{overflow:auto;overscroll-behavior:contain;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
-#pdfview .pb canvas,#cvpane .pv canvas{max-width:100%;height:auto;box-shadow:var(--shadow);border:var(--sheet)}
-#pdfview .pb .lbl,#cvpane .pv .lbl{margin:auto}
-#pdfview .pb .perr,#cvpane .pv .perr{margin:auto;display:grid;gap:1.1rem;justify-items:center;padding:2rem;border:1px dashed var(--rule);max-width:82%}
-#pdfview .pb .perr .lbl,#cvpane .pv .perr .lbl{margin:0;text-align:center}
-#pdfview .pb .perr .send,#cvpane .pv .perr .send{text-decoration:none}
+#pdfview .pb{overflow:auto;overscroll-behavior:contain;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+#pdfview .pb canvas{max-width:100%;height:auto;box-shadow:var(--shadow);border:var(--sheet)}
+#pdfview .pb .lbl{margin:auto}
+#pdfview .pb .perr{margin:auto;display:grid;gap:1.1rem;justify-items:center;padding:2rem;border:1px dashed var(--rule);max-width:82%}
+#pdfview .pb .perr .lbl{margin:0;text-align:center}
+#pdfview .pb .perr .send{text-decoration:none}
 
 /* ── stack matrix ───────────────────────────────────────────── */
 .layers{display:grid;gap:1px;background:var(--rule);border:var(--sheet)}
@@ -681,12 +762,6 @@ form{display:grid;gap:.9rem}
 #sent.on{display:grid}
 .dcol{display:grid;gap:1.25rem;align-content:start}
 .direct{display:grid;gap:1px;background:var(--rule);border:var(--sheet);align-content:start}
-/* the CV pinned to the board: page plates in a bounded, scrollable well,
-   drawn by the same renderer as the sheet viewer — crisp at any dpr */
-#cvpane{border:var(--sheet);background:var(--panel)}
-#cvpane .cap{display:flex;align-items:baseline;gap:1rem;justify-content:space-between;padding:.6rem .8rem;border-bottom:var(--sheet)}
-#cvpane .cap .go{text-decoration:none;color:var(--signal)}
-#cvpane .pv{max-height:200px;overflow:auto;overscroll-behavior:contain;background:var(--ink)}
 .direct a{
   background:var(--panel);padding:.9rem 1rem;text-decoration:none;display:flex;
   align-items:baseline;gap:1rem;transition:background .2s;
@@ -723,6 +798,10 @@ footer{
   #mapsvg .node{opacity:1}
   .stamp{opacity:1;transform:none}
   .reveal .bar{clip-path:none}
+  /* Removed outright rather than shortened: the global duration
+     override would otherwise flash the rocket across in a frame,
+     and leave 38 dust marks glinting forever. */
+  #launch{display:none}
 }
 </style>
 
@@ -774,6 +853,37 @@ footer{
 
   <!-- ══ HERO ═══════════════════════════════════════════════ -->
   <section class="sec" id="hero">
+    <div id="launch" aria-hidden="true">
+      <svg class="arc" preserveAspectRatio="none"><g class="dustg"></g><path class="tr" pathLength="100" vector-effect="non-scaling-stroke" d=""/></svg>
+      <span class="rk">
+        <svg viewBox="-52 0 262 70" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round">
+          <g class="flame">
+            <path d="M8 19 C -14 25, -34 30, -50 35 C -34 40, -14 45, 8 51 Z" fill="var(--signal)" opacity=".5" stroke="none"/>
+            <path d="M7 24 C -8 28, -22 31, -33 35 C -22 39, -8 42, 7 46 Z" fill="var(--signal)" opacity=".5" stroke="none"/>
+            <path d="M6 29 C -2 31, -9 33, -15 35 C -9 37, -2 39, 6 41 Z" fill="#FFD08A" opacity=".75" stroke="none"/>
+          </g>
+          <path d="M22 27 L6 19 L6 51 L22 43 Z"/>
+          <g opacity=".45" stroke-width=".7"><path d="M9 21 L9 49"/><path d="M13 23 L13 47"/><path d="M17 25 L17 45"/></g>
+          <path d="M22 25 H96 V45 H22 Z"/>
+          <g opacity=".3" stroke-width=".8"><path d="M38 25 V45"/><path d="M54 25 V45"/><path d="M70 25 V45"/><path d="M86 25 V45"/></g>
+          <path d="M30 25 L20 9 H38 L50 25 Z"/>
+          <path d="M30 45 L20 61 H38 L50 45 Z"/>
+          <text x="58" y="39" font-family="ui-monospace,monospace" font-size="7" fill="currentColor" stroke="none" letter-spacing=".8" opacity=".85">RSH-01</text>
+          <path d="M96 27 H110 V43 H96 Z"/>
+          <g opacity=".5" stroke-width=".7"><path d="M98 43 L104 27"/><path d="M102 43 L108 27"/><path d="M106 43 L110 30"/></g>
+          <path d="M110 26 H152 V44 H110 Z"/>
+          <circle cx="126" cy="35" r="3.4"/>
+          <g stroke-width=".8"><path d="M140 26 H150 V18 H140 Z"/><path d="M140 44 H150 V52 H140 Z"/>
+            <g opacity=".55"><path d="M143 18 V26"/><path d="M147 18 V26"/><path d="M140 22 H150"/><path d="M143 44 V52"/><path d="M147 44 V52"/><path d="M140 48 H150"/></g></g>
+          <path d="M152 26 Q182 28 200 35 Q182 42 152 44 Z"/>
+          <g opacity=".6" stroke-width=".7"><path d="M22 64 H96"/><path d="M22 61 V67"/><path d="M96 61 V67"/>
+            <path d="M110 64 H152"/><path d="M110 61 V67"/><path d="M152 61 V67"/><path d="M186 30 L196 13 H209"/></g>
+          <text x="47" y="70" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">STAGE I</text>
+          <text x="122" y="70" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">II</text>
+          <text x="197" y="11" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">PAYLOAD</text>
+        </svg>
+      </span>
+    </div>
     <div class="coord" id="coord"></div>
 
     <h1 id="wordmark"></h1>
@@ -1011,13 +1121,6 @@ footer{
       </div>
       <div class="dcol reveal" data-d="1">
         <div class="direct" id="direct"></div>
-        <div id="cvpane" hidden>
-          <div class="cap">
-            <span class="lbl" data-t="f.cv">Curriculum vitae</span>
-            <a class="lbl go" id="cvfull" href="#">See PDF →</a>
-          </div>
-          <div class="pv" id="cvpages"></div>
-        </div>
       </div>
     </div>
   </section>
@@ -1139,7 +1242,8 @@ var S = {
     '<text x="0" y="52" font-size="15" style="fill:var(--text-strong)">09:50</text><text x="46" y="52" font-size="8">CLOCK IN</text>'+
     '<text x="0" y="76" font-size="15" style="fill:var(--signal)">17:00</text><text x="46" y="76" font-size="8">CLOCK OUT</text>'+
     '<line style="stroke:var(--rule)"/>'+
-    '<text x="0" y="110" font-size="8">65 STATE ENTERPRISES</text><text x="0" y="126" font-size="8">DIRECTORY + BOARDS</text></g></svg>',
+    '<rect x="0" y="102" width="16" height="11" style="fill:var(--dim)" opacity=".3"/>'+
+    '<text x="21" y="110" font-size="8">STATE ENTERPRISES</text><text x="0" y="126" font-size="8">DIRECTORY + BOARDS</text></g></svg>',
 
   grid:'<svg viewBox="0 0 400 150" aria-hidden="true"><rect x="1" y="1" width="398" height="148" fill="none" style="stroke:var(--rule)"/>'+
     '<g fill="none" style="stroke:var(--rule)">'+
@@ -1294,7 +1398,7 @@ function buildMapList(){
     kids.forEach(function(p){
       h += '<button class="lf" type="button" data-id="'+p.id+'">'+
            '<span class="d'+(p.live?"":" idle")+'"></span>'+
-           '<strong>'+esc(p.name)+'</strong><span>'+esc(p.runtime[0])+'</span></button>';
+           '<strong>'+esc(p.name)+'</strong><span class="rt">'+esc(p.runtime[0])+'</span></button>';
     });
     h += '</li>';
   });
@@ -1454,8 +1558,12 @@ function paintPdf(host, href){
   // few MB, and a quiet corner label reads as a blank pane.
   var note = function(t){ host.innerHTML = '<span class="lbl">' + t + '</span>'; };
   note("FETCHING RENDERER…");
-  import("/vendor/pdfjs/pdf.min.mjs").then(function(pdfjs){
-    pdfjs.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.min.mjs";
+  // The legacy build, not the modern one: PDF.js 6 calls
+  // Map.prototype.getOrInsertComputed, which only Firefox ships. On Safari the
+  // modern build dies with "getOrInsertComputed is not a function" before a
+  // single page draws. The legacy bundle carries the core-js polyfill for it.
+  import("/vendor/pdfjs/pdf.legacy.min.mjs").then(function(pdfjs){
+    pdfjs.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/pdf.worker.legacy.min.mjs";
     note("LOADING PDF…");
     // v6 dropped every shorthand: only {url} with an absolute string loads.
     var task = pdfjs.getDocument({url: new URL(href, location.href).href});
@@ -1497,21 +1605,6 @@ function paintPdf(host, href){
   });
 }
 
-/* The pane waits for the reader: rendering starts only when the contact
-   section approaches the viewport, so the runtime and the PDF are never
-   fetched for a visit that ends above the fold. */
-var paneWatched = false;
-function watchPane(href){
-  if(paneWatched) return;
-  paneWatched = true;
-  var pages = document.getElementById("cvpages");
-  var go = function(){ paintPdf(pages, href); };
-  if(!("IntersectionObserver" in window)) return go();
-  var io = new IntersectionObserver(function(es){
-    if(es.some(function(e){ return e.isIntersecting; })){ io.disconnect(); go(); }
-  }, {rootMargin: "300px"});
-  io.observe(pages);
-}
 
 function closePdf(){
   pvOn = false;
@@ -1523,6 +1616,145 @@ function closePdf(){
 document.getElementById("pvclose").addEventListener("click", closePdf);
 pdfview.addEventListener("click", function(e){ if(e.target === pdfview) closePdf(); });
 document.addEventListener("keydown", function(e){ if(e.key === "Escape" && pvOn) closePdf(); });
+
+/* ═══ LAUNCH ════════════════════════════════════════════════
+   The curve is written once and used twice — as the rocket's
+   offset-path and as the trail's own d — so the two cannot drift
+   apart. Its height is the identity block rather than the whole
+   hero, which keeps the flight clear of the system diagram. */
+(function(){
+  var host = document.getElementById("launch");
+  if(!host || RM) return;
+
+  // Settings come from the appearance document, so density, spread and colour
+  // are tuned in /admin without a deploy. Every value is clamped: these are
+  // typed by hand, and one stray zero would build 40,000 nodes and hang the
+  // page before anyone saw the mistake.
+  function num(v, lo, hi, dflt){
+    v = Number(v);
+    return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : dflt;
+  }
+  var cfg = (CONTENT.appearance && CONTENT.appearance.launch) || {};
+  if(cfg.on === false) return;
+
+  var rk = host.querySelector(".rk"),
+      arc = host.querySelector(".arc"),
+      line = arc.querySelector(".tr"),
+      dustg = arc.querySelector(".dustg"),
+      map = document.getElementById("map"),
+      NS = "http://www.w3.org/2000/svg",
+      DUST   = Math.round(num(cfg.n, 0, 600, 400)),
+      SPREAD = num(cfg.spread, 0, 300, 140),
+      BRIGHT = num(cfg.bright, 0, 2, 1),
+      MIX    = num(cfg.mix, 0, 1, 0.5),
+      DUR    = num(cfg.dur, 1, 20, 4.6) * 1000,
+      // However dense the dust gets, only this many keep glinting. The eye
+      // cannot tell which marks twinkle among hundreds; the battery can.
+      TW_CAP = 70;
+  host.style.setProperty("--rk-dur", (DUR / 1000) + "s");
+
+  // The same four-pointed survey mark the background patterns use, so the
+  // trail is made of the page's own vocabulary rather than generic specks.
+  function sparkle(cx, cy, r){
+    return "M"+cx+" "+(cy-r)+"C"+(cx+r*.06)+" "+(cy-r*.44)+" "+(cx+r*.44)+" "+(cy-r*.06)+" "+(cx+r)+" "+cy
+         + "C"+(cx+r*.44)+" "+(cy+r*.06)+" "+(cx+r*.06)+" "+(cy+r*.44)+" "+cx+" "+(cy+r)
+         + "C"+(cx-r*.06)+" "+(cy+r*.44)+" "+(cx-r*.44)+" "+(cy+r*.06)+" "+(cx-r)+" "+cy
+         + "C"+(cx-r*.44)+" "+(cy-r*.06)+" "+(cx-r*.06)+" "+(cy-r*.44)+" "+cx+" "+(cy-r)+"Z";
+  }
+  // Seeded, so the scatter is varied but identical on every load.
+  function rng(seed){
+    return function(){ seed = seed*1664525 + 1013904223 & 0x7fffffff; return seed/0x7fffffff; };
+  }
+  // The rocket's own easing, evaluated forwards. Marks are spaced by TIME and
+  // their position read from this; spacing them by position instead lit them
+  // up to a quarter of the path ahead of the rocket.
+  function ease(x){
+    var x1=.5, y1=0, x2=.72, y2=.62,
+        cx=3*x1, bx=3*(x2-x1)-cx, ax=1-cx-bx,
+        cy=3*y1, by=3*(y2-y1)-cy, ay=1-cy-by, t=x, i, e, d;
+    for(i=0;i<8;i++){
+      e = ((ax*t+bx)*t+cx)*t - x;
+      if(Math.abs(e) < 1e-6) break;
+      d = (3*ax*t+2*bx)*t+cx;
+      if(Math.abs(d) < 1e-7) break;
+      t -= e/d;
+    }
+    t = Math.min(1, Math.max(0, t));
+    return ((ay*t+by)*t+cy)*t;
+  }
+
+  function curve(w, h){
+    return "M " + (-0.14 * w) + " " + (1.24 * h) +
+           " C " + (0.06 * w) + " " + (0.94 * h) +
+             ", " + (0.18 * w) + " " + (0.62 * h) +
+             ", " + (0.42 * w) + " " + (0.44 * h) +
+           " S " + (0.80 * w) + " " + (0.16 * h) +
+             ", " + (1.16 * w) + " " + (-0.22 * h);
+  }
+  function layout(){
+    var w = host.clientWidth, full = host.clientHeight,
+        h = map && map.offsetTop ? map.offsetTop : full,
+        d = curve(w, h);
+    rk.style.offsetPath = 'path("' + d + '")';
+    arc.setAttribute("viewBox", "0 0 " + w + " " + full);
+    line.setAttribute("d", d);
+    dust();
+  }
+
+  function dust(){
+    dustg.textContent = "";
+    var total = line.getTotalLength(), rand = rng(97),
+        // Back off to the nozzle mouth so the marks leave the exhaust rather
+        // than the nose; measured, so it follows the rocket's own size.
+        lag = (rk.getBoundingClientRect().width || 200) * 0.34,
+        tw = 0,
+        i, time, at, p, spread, ang, x, y, isDot, r, el, glints, hot;
+    for(i = 0; i < DUST; i++){
+      time = (i + 0.5) / DUST;
+      at = Math.max(0, ease(time) * total - lag);
+      p = line.getPointAtLength(at);
+      // A power above 1 heaps the marks near the path and thins them outward,
+      // so raising the spread widens the trail instead of flattening it into
+      // an even haze.
+      spread = SPREAD * Math.pow(rand(), 1.8);
+      ang = rand() * Math.PI * 2;
+      x = p.x + Math.cos(ang) * spread;
+      y = p.y + Math.sin(ang) * spread;
+      isDot = rand() < 0.58;
+      r = isDot ? 0.7 + rand() * 1.2 : 1.8 + rand() * 3.2;
+
+      el = document.createElementNS(NS, isDot ? "circle" : "path");
+      if(isDot){ el.setAttribute("cx", x); el.setAttribute("cy", y); el.setAttribute("r", r); }
+      else { el.setAttribute("d", sparkle(x, y, r)); }
+
+      glints = !isDot && tw < TW_CAP && rand() < 0.55;
+      el.setAttribute("class", glints ? "dust tw" : "dust");
+      if(glints) tw++;
+
+      // Mixed rather than split at a hard line: orange is likelier near the
+      // pad and rarer higher up, so both colours sit side by side the whole
+      // way. A few of the hot ones take the flame's own amber.
+      hot = rand() < Math.min(1, Math.max(0, MIX * (1.35 - 0.7 * time)));
+      el.setAttribute("fill", hot
+        ? (rand() < 0.16 ? "#FFD08A" : "var(--signal)")
+        : "var(--structure)");
+
+      el.style.setProperty("--rest", ((isDot ? 0.62 : 1) * BRIGHT - time * 0.12).toFixed(3));
+      el.style.animationDelay = (time * DUR + 70) + "ms";
+      el.style.setProperty("--gd", (time * DUR + 1100 + rand() * 1800) + "ms");
+      el.style.setProperty("--per", (2400 + rand() * 3000) + "ms");
+      dustg.appendChild(el);
+    }
+  }
+  layout();
+  var t;
+  addEventListener("resize", function(){
+    clearTimeout(t);
+    t = setTimeout(layout, 150);
+  });
+  // Let the wordmark finish rising before anything crosses it.
+  setTimeout(function(){ host.classList.add("go"); }, 420);
+})();
 
 /* ═══ TICKER ════════════════════════════════════════════════ */
 (function(){
@@ -1611,38 +1843,27 @@ function buildStamps(){
 }
 
 function buildDirect(){
-  // A `viewer` row is the CV, and the CV shows itself in the pane below —
-  // listing it as a link as well says the same thing twice.
   document.getElementById("direct").innerHTML =
-    (CONTENT.contact || []).filter(function(c){ return !c.viewer; }).map(function(c){
+    (CONTENT.contact || []).map(function(c){
       // value is a plain string, or {en,id} for rows whose text differs by
-      // language.
+      // language — the CV row reads "See PDF" / "Lihat PDF".
       var v = (c.value && c.value.en) ? (c.value[lang] || c.value.en) : c.value;
-      return '<a href="' + esc(c.href) + '"' + (c.download ? " download" : "") + '>' +
+      return '<a href="' + esc(c.href) + '"' + (c.download ? " download" : "") +
+             (c.viewer ? " data-viewer" : "") + '>' +
              '<span class="lbl">' + esc(c[lang] || c.en || "") + '</span>' +
              '<span class="v' + (c.num ? " num" : "") + '"' +
              (c.accent ? ' style="color:var(--signal)"' : '') + '>' +
              esc(v) + '</span></a>';
     }).join("");
+  // A viewer row opens the PDF in-page. Only the plain left-click is taken
+  // over, so middle-click and open-in-new-tab still reach the file itself.
+  document.querySelectorAll("#direct a[data-viewer]").forEach(function(a){
+    a.addEventListener("click", function(e){
+      e.preventDefault();
+      openPdf(a.getAttribute("href"));
+    });
+  });
 
-  // The CV pane on the page itself: the same canvas renderer as the sheet
-  // viewer, in a bounded scrollable well; its caption link opens the full
-  // sheet. Render starts only when the section nears the viewport.
-  var pane = document.getElementById("cvpane"),
-      cv = (CONTENT.contact || []).filter(function(c){ return c.viewer; })[0];
-  pane.hidden = !cv;
-  if(cv){
-    var cvVal = (cv.value && cv.value.en) ? (cv.value[lang] || cv.value.en) : cv.value;
-    // the well's height is set from /admin; the stylesheet carries the same
-    // default so the pane is never unbounded while content is still loading
-    document.getElementById("cvpages").style.maxHeight =
-      (Number(cv.paneH) > 0 ? Number(cv.paneH) : 200) + "px";
-    var full = document.getElementById("cvfull");
-    full.textContent = cvVal + " →";
-    full.href = cv.href;
-    full.onclick = function(e){ e.preventDefault(); openPdf(cv.href); };
-    watchPane(cv.href);
-  }
 }
 
 function buildFooter(){
@@ -1693,6 +1914,12 @@ function buildPath(){
   var total = (last - base + 1) * 12;
   function at(s){ var d = ym(s); return ((d.y - base) * 12 + d.m) / total * 100; }
 
+  // Narrow layouts scale the bar against the longest engagement rather than the
+  // whole span, so a five-month posting is still a readable length.
+  var longest = Math.max.apply(null, TIMELINE.map(function(t){
+    return months(t.s, t.e || nowStr);
+  }));
+
   var h = '<div class="axis">';
   for(var y = base; y <= last; y++){
     h += '<span style="left:'+ ((y - base) * 12 / total * 100) +'%">'+ y +'</span>';
@@ -1707,9 +1934,11 @@ function buildPath(){
       var open  = !t.e,
           left  = at(t.s),
           width = Math.max(at(t.e || nowStr) - left, 0.7),
+          run   = months(t.s, t.e || nowStr),
+          span  = Math.max(run / longest * 100, 4),
           when  = fmtYM(t.s) + " – " +
                   (open ? '<b>' + tr("t.present") + '</b>' : fmtYM(t.e));
-      h += '<div class="row-t">'+
+      h += '<div class="row-t" data-open="'+ (open ? 1 : 0) +'">'+
              '<span class="mark"><i>'+ mono(t.who) +'</i>'+
                (t.logo ? '<img src="'+ t.logo +'" alt="" loading="lazy" ' +
                          'onload="this.parentNode.classList.add(\'has\')" ' +
@@ -1720,7 +1949,8 @@ function buildPath(){
              '<span class="trk"><span class="bar'+ (open ? " now" : "") + (t.soft ? " soft" : "") +
                '" data-i="'+ TIMELINE.indexOf(t) +'" tabindex="0" role="img" aria-label="'+
                esc(t.who + " — " + t.role[lang] + ", " + when.replace(/<\/?b>/g,"")) +
-               '" style="left:'+ left +'%;width:'+ width +'%"></span></span>'+
+               '" style="--l:'+ left +'%;--w:'+ width +'%;--d:'+ span +'%"></span></span>'+
+             '<span class="dur">'+ durText(run) +'</span>'+
            '</div>';
     });
     h += '</div>';
