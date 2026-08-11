@@ -11,7 +11,7 @@
     "tail": "wrangler tail",
     "check": "node scripts/check-shell.mjs",
     "predeploy": "npm run test && node scripts/check-shell.mjs",
-    "test": "node --test \"test/*.test.ts\""
+    "test": "node --test --experimental-strip-types \"test/*.test.ts\""
   },
   "devDependencies": {
     "typescript": "^5.7.2",
