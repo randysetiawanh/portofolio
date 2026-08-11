@@ -18,10 +18,10 @@ worker-configuration.d.ts
 *.pdf
 !public/porto/*.pdf
 
-# Scratch: everything the generators write. The editable portfolio HTML carries
-# ministry screenshots inline as data URIs, and .html is not covered by the
-# *.pdf rule above, so the whole directory stays out of a public clone.
-# Publishing is a deliberate copy out of here into public/porto/.
+# Scratch. The project sheets moved to ../porto-sheet on 2026-08-10, but keep
+# this: anything generated here carries ministry screenshots, and .html is not
+# covered by the *.pdf rule above, so the whole directory stays out of a public
+# clone. Publishing a sheet is an upload through /admin, not a commit.
 tmp/
 
 # Portrait master. public/randy.jpg is the optimised copy the site actually
