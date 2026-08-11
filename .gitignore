@@ -4,6 +4,10 @@ node_modules/
 .DS_Store
 *.log
 
+# Bank memory project. Ditulis untuk sesi yang mau mengubah sesuatu, bukan untuk
+# orang yang meng-clone repo ini — README.md yang untuk mereka.
+.internal-docs/
+
 # Local secrets. .dev.vars.example is the checked-in template.
 .dev.vars
 .dev.vars.*
