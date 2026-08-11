@@ -29,15 +29,35 @@ body{margin:0;background:var(--ink);color:var(--text);
   font:15px/1.55 ui-sans-serif,system-ui,-apple-system,sans-serif}
 .lbl{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
-header{position:sticky;top:0;z-index:20;display:flex;gap:.8rem;align-items:center;
-  padding:.7rem 1rem;border-bottom:1px solid var(--rule);flex-wrap:wrap;
-  background:color-mix(in srgb,var(--ink) 94%,transparent);backdrop-filter:blur(10px)}
-header b{font-size:13px;letter-spacing:.18em;font-family:ui-monospace,monospace;color:var(--strong)}
-nav{display:flex;gap:.2rem;margin-left:auto;flex-wrap:wrap}
-nav button{background:none;border:1px solid transparent;color:var(--dim);cursor:pointer;
-  padding:.3rem .6rem;font:inherit;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
-nav button.on,nav button:hover{color:var(--strong);border-color:var(--rule)}
-main{padding:1.25rem;max-width:1080px;margin:0 auto}
+/* Two columns: the running order of the page down the left, the form on the
+   right. The sidebar repeats the page's own 01–10 numbering, so finding the
+   thing you just looked at on the site is a matter of matching the number. */
+body{display:grid;grid-template-columns:232px minmax(0,1fr)}
+#side{position:sticky;top:0;height:100vh;overflow:auto;padding:1rem .75rem 2rem;
+  border-right:1px solid var(--rule);background:var(--panel);
+  display:flex;flex-direction:column;gap:.5rem}
+#side b{font-size:12px;letter-spacing:.18em;font-family:ui-monospace,monospace;color:var(--strong)}
+#side .who{word-break:break-all;margin-bottom:.4rem}
+nav{display:flex;flex-direction:column;gap:1px}
+nav .grp{margin:.9rem 0 .35rem;padding-top:.6rem;border-top:1px solid var(--rule)}
+nav .grp:first-child{margin-top:0;padding-top:0;border-top:0}
+nav button{display:flex;gap:.55rem;align-items:baseline;width:100%;text-align:left;
+  background:none;border:1px solid transparent;color:var(--dim);cursor:pointer;
+  padding:.42rem .55rem;font:inherit;font-size:12px}
+nav button .no{font-family:ui-monospace,monospace;font-size:10px;color:var(--rule);
+  min-width:1.4em;flex:none}
+nav button.on{color:var(--strong);background:var(--panel2);border-color:var(--rule)}
+nav button.on .no{color:var(--sig)}
+nav button:hover{color:var(--strong)}
+main{padding:1.5rem 1.6rem 2rem;max-width:1020px}
+@media(max-width:860px){
+  body{grid-template-columns:1fr}
+  #side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule)}
+  nav{flex-direction:row;flex-wrap:wrap}
+  nav button{width:auto}
+  nav .grp{width:100%;margin:.5rem 0 .2rem}
+  main{padding:1.1rem}
+}
 section{display:none}section.on{display:block}
 h2{font-size:1.15rem;margin:0 0 .2rem}
 .hint{color:var(--dim);font-size:13px;margin:0 0 1.2rem;max-width:64ch}
@@ -117,11 +137,11 @@ td img{width:32px;height:32px;object-fit:contain;background:var(--panel2);border
 </style>
 </head>
 <body>
-<header>
+<aside id="side">
   <b>PORTFOLIO / CONTENT</b>
-  <span class="lbl" id="who"></span>
+  <span class="lbl who" id="who"></span>
   <nav id="tabs"></nav>
-</header>
+</aside>
 <main id="main"></main>
 
 <div id="modal"><div class="box">
@@ -281,12 +301,17 @@ function i18nGroup(keys) {
   return wrap;
 }
 
-/* ── generic list editor ──────────────────────────────────────────────── */
-function listEditor(arr, title, tag, fieldsFn, makeNew) {
+/* ── generic list editor ──────────────────────────────────────────────────
+   "hide" keeps a row in the stored array but out of this list — the CV lives
+   in "contact" yet is edited on its own tab, and showing it in both is what
+   made it possible to delete it twice over. Reordering and removal work off
+   the row's real index, so a hidden row never shifts under them. */
+function listEditor(arr, title, tag, fieldsFn, makeNew, hide) {
   const host = el("div");
   const draw = () => {
     host.textContent = "";
-    arr.forEach((item, i) => {
+    (hide ? arr.filter(x => !hide(x)) : arr).forEach((item) => {
+      const i = arr.indexOf(item);
       const body = el("div", { class: "body" });
       fieldsFn(item, body, i);
       const tools = el("div", { class: "row" }, [
@@ -589,7 +614,62 @@ function contactEditor() {
         check("Accent colour", c.accent, v => (c.accent = v || undefined)),
         check("Download attribute", c.download, v => (c.download = v || undefined)),
       ]));
-    }, () => ({ en: "", id: "", value: "", href: "" }));
+    }, () => ({ en: "", id: "", value: "", href: "" }),
+    c => c.viewer);        // the CV has its own tab
+}
+
+/* ── the CV ───────────────────────────────────────────────────────────────
+   Stored as the one "viewer" row inside "contact", because that is what the
+   page reads, but edited here on its own: its shown value is bilingual
+   where every other route's is a plain string, and the generic route form
+   would flatten it to [object Object] on the first save. */
+function cvEditor() {
+  const arr = (STATE.content.contact ||= []);
+  const host = el("div");
+  const draw = () => {
+    host.textContent = "";
+    const cv = arr.find(c => c.viewer);
+    if (!cv) {
+      host.append(el("p", { class: "hint",
+        text: "No CV row yet. Adding one puts the reader back on the contact section." }));
+      const add = el("button", { class: "act", type: "button", text: "+ Add the CV" });
+      add.addEventListener("click", () => {
+        arr.push({ en: "Curriculum vitae", id: "Curriculum vitae",
+                   value: { en: "See PDF", id: "Lihat PDF" },
+                   href: "/m/cv/", viewer: true, accent: true });
+        draw();
+      });
+      host.append(el("div", { class: "row" }, [add]));
+      return;
+    }
+    if (typeof cv.value !== "object" || cv.value === null) {
+      cv.value = { en: String(cv.value || "See PDF"), id: String(cv.value || "Lihat PDF") };
+    }
+    const b = el("div", { class: "body", style: "padding:0" });
+    b.append(el("div", { class: "g2" }, [
+      field("Row label — EN", cv.en, v => (cv.en = v)),
+      field("Row label — ID", cv.id, v => (cv.id = v)),
+    ]));
+    b.append(el("div", { class: "g2" }, [
+      field("Link text — EN", cv.value.en, v => (cv.value.en = v)),
+      field("Link text — ID", cv.value.id, v => (cv.value.id = v)),
+    ]));
+    b.append(field("PDF path", cv.href, v => (cv.href = v)));
+    b.append(mediaField("…or pick the file", cv.href || "", v => { cv.href = v; draw(); }, "cv"));
+    b.append(field("Reader height on the page, in pixels — blank for 200",
+      cv.paneH, v => (cv.paneH = Number(v) > 0 ? Number(v) : undefined), "number"));
+    const rm = el("button", { class: "act warn tiny", type: "button", text: "Remove the CV" });
+    rm.addEventListener("click", () => {
+      if (confirm("Remove the CV? The reader disappears from the contact section.")) {
+        arr.splice(arr.findIndex(c => c.viewer), 1);
+        draw();
+      }
+    });
+    b.append(el("div", { class: "row" }, [rm]));
+    host.append(b);
+  };
+  draw();
+  return host;
 }
 
 function footerEditor() {
@@ -646,7 +726,13 @@ function seoEditor() {
 }
 
 /* ── tabs ─────────────────────────────────────────────────────────────── */
+/* The running order of the site, top to bottom. "no" is the number the page
+   itself prints beside each section heading, so the two can be read side by
+   side. Within a tab the same rule holds: the content in the order it appears
+   on the page, and the headings and labels for that section last — they are
+   the part you change once a year. */
 const TABS = [
+  { grp: "The page" },
   { id: "hero",    name: "Hero",
     hint: "The first screen, top to bottom: the eyebrow line, the big name, the statement beside it, and the four-row position table on the right.",
     parts: [
@@ -655,28 +741,45 @@ const TABS = [
       ["Opening statement", () => i18nGroup(FIELDS.hero)],
       ["Position rows — Role / Posted to / Via / Since", positionEditor],
     ] },
-  { id: "map",     name: "Map",     hint: "The system diagram: its caption, legend, and the domain boxes projects hang from.",
-    parts: [["Headings & labels", () => i18nGroup(FIELDS.map)], ["Domains", domainsEditor]] },
-  { id: "services", name: "Services", hint: "The offer. Lead with the client's problem in their words — the stack comes second.",
+  { id: "map",     name: "Map", no: "01",
+    hint: "The system diagram and the domain boxes projects hang from, then the four counters on the strip below it.",
+    parts: [["Domains", domainsEditor], ["Counter strip — the figures under the diagram", statsEditor],
+            ["Headings & labels", () => i18nGroup(FIELDS.map)]] },
+  { id: "services", name: "Services", no: "02",
+    hint: "The offer. Lead with the client's problem in their words — the stack comes second.",
     parts: [["Service offers", servicesEditor], ["Headings & labels", () => i18nGroup(FIELDS.services)]] },
-  { id: "profile", name: "Profile", hint: "Bio paragraphs, the spec table beside the portrait, and the counters above them.",
-    parts: [["Headings & labels", () => i18nGroup(FIELDS.profile)], ["Counter strip", statsEditor]] },
-  { id: "path",    name: "Path",    hint: "The timeline. Leave an end date blank for anything still running.",
+  { id: "profile", name: "Profile", no: "03",
+    hint: "The bio paragraphs and the spec table beside the portrait.",
+    parts: [["Bio, spec table & headings", () => i18nGroup(FIELDS.profile)]] },
+  { id: "path",    name: "Path", no: "04",
+    hint: "The timeline. Leave an end date blank for anything still running.",
     parts: [["Timeline entries", timelineEditor], ["Headings & labels", () => i18nGroup(FIELDS.path)]] },
-  { id: "work",    name: "Work",    hint: "Every project in the register, and the labels around it.",
+  { id: "work",    name: "Work", no: "05",
+    hint: "Every project in the register, and the labels around it.",
     parts: [["Projects", projectsEditor], ["Headings & labels", () => i18nGroup(FIELDS.work)]] },
-  { id: "stack",   name: "Stack",   hint: "Technology layers. Each item is: name | depth 1-3 | icon.",
+  { id: "stack",   name: "Stack", no: "06",
+    hint: "Technology layers. Each item is: name | depth 1-3 | icon.",
     parts: [["Layers", layersEditor], ["Headings & labels", () => i18nGroup(FIELDS.stack)]] },
-  { id: "quality", name: "Quality", hint: "The testing-background section.",
-    parts: [["Headings & labels", () => i18nGroup(FIELDS.quality)]] },
-  { id: "how",     name: "Working together", hint: "The objections a remote client actually has: testing, process, timezone, secrets.",
+  { id: "quality", name: "Quality", no: "07",
+    hint: "The testing-background section.",
+    parts: [["Section copy", () => i18nGroup(FIELDS.quality)]] },
+  { id: "how",     name: "Working together", no: "08",
+    hint: "The objections a remote client actually has: testing, process, timezone, secrets.",
     parts: [["Trust notes", practiceEditor], ["Headings & labels", () => i18nGroup(FIELDS.how)]] },
-  { id: "cred",    name: "Credentials", hint: "The stamps. They tilt automatically, alternating direction.",
+  { id: "cred",    name: "Credentials", no: "09",
+    hint: "The stamps. They tilt automatically, alternating direction.",
     parts: [["Certificate stamps", credentialsEditor], ["Headings & labels", () => i18nGroup(FIELDS.credentials)]] },
-  { id: "contact", name: "Contact", hint: "Form labels and the direct links beside it.",
-    parts: [["Contact routes", contactEditor], ["Headings & labels", () => i18nGroup(FIELDS.contact)]] },
-  { id: "footer",  name: "Footer",  hint: "The drawing title block at the bottom.",
+  { id: "contact", name: "Contact", no: "10",
+    hint: "The form on the left and the direct links on the right. The CV sits below them and has its own tab.",
+    parts: [["Contact routes", contactEditor], ["Form labels & headings", () => i18nGroup(FIELDS.contact)]] },
+  { id: "cv",      name: "CV", no: "10",
+    hint: "The reader under the contact links: it renders the PDF on the page itself, so the file you pick here is what visitors read. It is not listed as a link — the reader is the link.",
+    parts: [["Curriculum vitae", cvEditor]] },
+  { id: "footer",  name: "Footer",
+    hint: "The drawing title block at the bottom.",
     parts: [["Title-block rows", footerEditor], ["Headings & labels", () => i18nGroup(FIELDS.footer)], ["Navigation", () => i18nGroup(FIELDS.nav)]] },
+
+  { grp: "The site" },
   { id: "look",    name: "Appearance", hint: "The background pattern behind every section. Previews are rendered from the same declarations the page uses, so what you pick is what you get.",
     parts: [["Background", appearanceEditor]] },
   { id: "seo",     name: "Sharing", hint: "The tab title, the search-result snippet, and the card people see when they paste your link. Facebook, LinkedIn and WhatsApp cache these hard — after changing the image, run the link through their debugger to force a refresh.",
@@ -842,10 +945,16 @@ function paint() {
   const current = document.querySelector("section.on")?.id;
   main.textContent = ""; tabs.textContent = "";
   for (const t of TABS) {
-    const b = el("button", { type: "button", text: t.name });
+    if (t.grp) { tabs.append(el("span", { class: "lbl grp", text: t.grp })); continue; }
+    const b = el("button", { type: "button", "data-tab": t.id }, [
+      el("span", { class: "no", text: t.no || "" }),
+      el("span", { text: t.name }),
+    ]);
     b.addEventListener("click", () => {
       document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x === b));
       document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id === "tab-" + t.id));
+      main.scrollTo?.(0, 0);
+      window.scrollTo(0, 0);
     });
     tabs.append(b);
     main.append(renderTab(t));
@@ -853,8 +962,8 @@ function paint() {
   const want = current || "tab-hero";
   const target = document.getElementById(want) || document.getElementById("tab-hero");
   target.classList.add("on");
-  const idx = TABS.findIndex(t => "tab-" + t.id === target.id);
-  tabs.children[Math.max(idx, 0)].classList.add("on");
+  const btn = tabs.querySelector('[data-tab="' + target.id.slice(4) + '"]');
+  (btn || tabs.querySelector("button")).classList.add("on");
 }
 
 async function load() {

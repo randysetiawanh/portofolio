@@ -686,7 +686,7 @@ form{display:grid;gap:.9rem}
 #cvpane{border:var(--sheet);background:var(--panel)}
 #cvpane .cap{display:flex;align-items:baseline;gap:1rem;justify-content:space-between;padding:.6rem .8rem;border-bottom:var(--sheet)}
 #cvpane .cap .go{text-decoration:none;color:var(--signal)}
-#cvpane .pv{max-height:min(72vh,620px);overflow:auto;overscroll-behavior:contain;background:var(--ink)}
+#cvpane .pv{max-height:200px;overflow:auto;overscroll-behavior:contain;background:var(--ink)}
 .direct a{
   background:var(--panel);padding:.9rem 1rem;text-decoration:none;display:flex;
   align-items:baseline;gap:1rem;transition:background .2s;
@@ -1611,26 +1611,19 @@ function buildStamps(){
 }
 
 function buildDirect(){
+  // A `viewer` row is the CV, and the CV shows itself in the pane below —
+  // listing it as a link as well says the same thing twice.
   document.getElementById("direct").innerHTML =
-    (CONTENT.contact || []).map(function(c){
+    (CONTENT.contact || []).filter(function(c){ return !c.viewer; }).map(function(c){
       // value is a plain string, or {en,id} for rows whose text differs by
-      // language — the CV row reads "See PDF" / "Lihat PDF".
+      // language.
       var v = (c.value && c.value.en) ? (c.value[lang] || c.value.en) : c.value;
-      return '<a href="' + esc(c.href) + '"' + (c.download ? " download" : "") +
-             (c.viewer ? " data-viewer" : "") + '>' +
+      return '<a href="' + esc(c.href) + '"' + (c.download ? " download" : "") + '>' +
              '<span class="lbl">' + esc(c[lang] || c.en || "") + '</span>' +
              '<span class="v' + (c.num ? " num" : "") + '"' +
              (c.accent ? ' style="color:var(--signal)"' : '') + '>' +
              esc(v) + '</span></a>';
     }).join("");
-  // A viewer row opens the PDF in-page. Only the plain left-click is taken
-  // over, so middle-click and open-in-new-tab still reach the file itself.
-  document.querySelectorAll("#direct a[data-viewer]").forEach(function(a){
-    a.addEventListener("click", function(e){
-      e.preventDefault();
-      openPdf(a.getAttribute("href"));
-    });
-  });
 
   // The CV pane on the page itself: the same canvas renderer as the sheet
   // viewer, in a bounded scrollable well; its caption link opens the full
@@ -1640,6 +1633,10 @@ function buildDirect(){
   pane.hidden = !cv;
   if(cv){
     var cvVal = (cv.value && cv.value.en) ? (cv.value[lang] || cv.value.en) : cv.value;
+    // the well's height is set from /admin; the stylesheet carries the same
+    // default so the pane is never unbounded while content is still loading
+    document.getElementById("cvpages").style.maxHeight =
+      (Number(cv.paneH) > 0 ? Number(cv.paneH) : 200) + "px";
     var full = document.getElementById("cvfull");
     full.textContent = cvVal + " →";
     full.href = cv.href;
