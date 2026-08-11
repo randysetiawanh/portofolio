@@ -9,7 +9,7 @@ Commit sendiri: diizinkan.
 
 Aturan global berlaku penuh. Aturan khas project ini **tidak ditulis di sini** —
 semuanya hidup sebagai `R-xxx` di dalam `.internal-docs/`, satu namespace untuk
-seluruh folder, terpakai sampai R-175. File ini cuma memuat yang perlu dibaca
+seluruh folder, terpakai sampai R-179. File ini cuma memuat yang perlu dibaca
 sebelum indeksnya dibuka.
 
 ---
@@ -45,3 +45,14 @@ itu masih ada di `origin/main`.
 sementara VPS mendorong 12, dan akibatnya bukan konflik teks biasa — laptop
 terus mengembangkan panel CV yang sudah dihapus di main enam hari sebelumnya.
 Detail dan jebakan turunannya di `020-kerja-dua-mesin.md`.
+
+## R-179 — `.internal-docs/` disalin manual, git tidak membawanya
+
+Folder ini gitignored. Salin dengan `rsync -av --delete` ke mesin seberang
+**sebelum** push, dan tulis dokumen hanya di satu mesin per sesi.
+
+**Alasan:** `git pull` di mesin seberang akan menghapus `portofolio-docs/` yang
+lama tanpa menerima penggantinya, jadi mesin itu bisa kehilangan seluruh bank
+memory-nya. Salinan satu arah dengan `--delete` juga menimpa tanpa peringatan
+kalau kedua mesin sama-sama menulis. Prosedur lengkapnya di
+`020-kerja-dua-mesin.md` (R-176 sampai R-178).
