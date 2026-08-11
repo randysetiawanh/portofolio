@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Setel kerapatan serbuk</title>
+<style>
+@font-face{font-family:'Archivo';src:url('/fonts/archivo-var.woff2') format('woff2-variations');
+  font-weight:100 900;font-display:swap}
+@font-face{font-family:'Plex Mono';src:url('/fonts/plexmono-400.woff2') format('woff2');font-weight:400}
+@font-face{font-family:'Plex Mono';src:url('/fonts/plexmono-500.woff2') format('woff2');font-weight:500}
+
+:root{
+  --ink:#080C11; --panel:#0E141B; --panel-2:#131C26; --rule:#1F2C39;
+  --dim:#6E8194; --text:#DCE5ED; --text-strong:#F4F8FC;
+  --structure:#3A7BFD; --signal:#FF7A18;
+  --sheet:1px solid var(--rule);
+  --f-display:'Archivo',ui-sans-serif,system-ui,sans-serif;
+  --f-mono:'Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--text);font-family:var(--f-display);
+  background-image:
+    repeating-linear-gradient(90deg,rgba(58,123,253,.055) 0 1px,transparent 1px 60px),
+    repeating-linear-gradient(0deg,rgba(58,123,253,.055) 0 1px,transparent 1px 60px)}
+.wrap{max-width:980px;margin:0 auto;padding:1.25rem 1rem 4rem}
+.lbl{font-family:var(--f-mono);font-size:.625rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim)}
+.why{font-size:.8125rem;color:var(--dim);margin:.4rem 0 1rem;line-height:1.55;max-width:74ch}
+.why b{color:var(--text)}
+
+.panel{position:sticky;top:0;z-index:9;background:color-mix(in srgb,var(--ink) 94%,transparent);
+  backdrop-filter:blur(10px);border:var(--sheet);padding:.9rem 1rem;margin-bottom:1rem;
+  display:grid;gap:.75rem}
+.row{display:grid;grid-template-columns:4.6rem 1fr 3.2rem;gap:.7rem;align-items:center}
+.row input[type=range]{width:100%;accent-color:var(--signal)}
+.row output{font-family:var(--f-mono);font-size:.8125rem;color:var(--signal);
+  text-align:right;font-variant-numeric:tabular-nums}
+.acts{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.acts button{background:none;border:1px solid var(--rule);color:var(--dim);font:inherit;
+  font-family:var(--f-mono);font-size:.625rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:.4rem .8rem;cursor:pointer}
+.acts button:hover{border-color:var(--signal);color:var(--signal)}
+.acts .out{margin-left:auto;font-family:var(--f-mono);font-size:.6875rem;color:var(--dim)}
+
+.hero{position:relative;border:var(--sheet);background:var(--panel);
+  padding:1.4rem 1.5rem 1.6rem;overflow:hidden;min-height:360px}
+.coord{display:flex;gap:1.1rem;flex-wrap:wrap;margin-bottom:1rem;position:relative;z-index:3}
+.wordmark{margin:0;font-variation-settings:'wdth' 104,'wght' 800;letter-spacing:-.03em;
+  font-size:clamp(2.1rem,7vw,3.6rem);line-height:.94;color:var(--text-strong);
+  position:relative;z-index:3}
+.thesis{margin:.9rem 0 0;font-size:.9375rem;line-height:1.6;color:var(--text);
+  max-width:44ch;position:relative;z-index:3}
+.thesis b{color:var(--text-strong);font-weight:400;
+  border-bottom:1px solid color-mix(in srgb,var(--signal) 60%,transparent)}
+.postat{margin-top:1.2rem;display:grid;gap:1px;background:var(--rule);border:var(--sheet);
+  position:relative;z-index:3;max-width:32rem}
+.postat div{background:var(--panel);padding:.45rem .7rem;display:flex;gap:1rem;align-items:baseline}
+.postat .v{margin-left:auto;font-family:var(--f-mono);font-size:.75rem;
+  color:var(--text-strong);text-align:right}
+
+.flyer{position:absolute;left:0;top:0;z-index:2;pointer-events:none;
+  offset-rotate:auto;offset-distance:0%;opacity:0;color:var(--structure);
+  will-change:offset-distance,opacity}
+.run .flyer{animation:fly 4.6s cubic-bezier(.5,0,.72,.62) forwards,
+                      fade 4.6s linear forwards}
+@keyframes fly{to{offset-distance:100%}}
+@keyframes fade{0%{opacity:0}7%{opacity:1}88%{opacity:1}100%{opacity:0}}
+.flyer svg{display:block;width:clamp(140px,21vw,228px);height:auto}
+
+.arc{position:absolute;inset:0;z-index:1;overflow:visible}
+.arc .tr{fill:none;stroke:var(--structure);stroke-width:1;opacity:.3;
+  stroke-dasharray:100;stroke-dashoffset:100}
+.run .arc .tr{animation:trace 4.6s cubic-bezier(.5,0,.72,.62) forwards}
+@keyframes trace{to{stroke-dashoffset:0}}
+
+.dust{opacity:0;transform-box:fill-box;transform-origin:center}
+.run .dust{animation:settle 1.4s cubic-bezier(.16,1,.3,1) forwards}
+/* Hanya bintang yang berkelip; titik kecil diam. Jadi menaikkan kerapatan
+   tidak ikut menaikkan jumlah animasi yang berjalan selamanya. */
+.run .dust.tw{animation:settle 1.4s cubic-bezier(.16,1,.3,1) forwards,
+                        glint var(--per,3s) ease-in-out var(--gd,2s) infinite alternate}
+@keyframes settle{
+  0%{opacity:0;scale:.35;rotate:-25deg}
+  22%{opacity:1;scale:1.15}
+  100%{opacity:var(--rest,.4);scale:1;rotate:0deg}
+}
+@keyframes glint{from{opacity:var(--rest,.4)}to{opacity:calc(var(--rest,.4) * .28)}}
+
+.run .flame{animation:burn .42s ease-in-out infinite alternate;
+            transform-origin:6px 35px;transform-box:fill-box}
+@keyframes burn{from{scale:1 1;opacity:.95}to{scale:.86 .92;opacity:.72}}
+
+@media (prefers-reduced-motion:reduce){
+  .run .flyer,.run .arc .tr,.run .flame,.run .dust{animation:none}
+  .flyer{opacity:0} .arc .tr{stroke-dashoffset:0} .dust{opacity:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="lbl" style="margin:0 0 .4rem">RSH — SETEL KERAPATAN SERBUK</p>
+<p class="why">Geser sampai pas, lalu <b>sebutkan tiga angkanya</b> — nanti saya pasang
+persis segitu. Yang di produksi sekarang: jumlah <b>38</b>, sebar <b>25</b>,
+terang <b>0.50</b>. Slider sudah saya set ke <b>400 / 140 / 1.00</b> seperti yang kamu
+coba, dengan warna kini <b>bercampur</b> — oranye dan biru berdampingan sepanjang jalur,
+proporsinya bergeser sesuai ketinggian.</p>
+
+<div class="panel">
+  <div class="row"><span class="lbl">Jumlah</span>
+    <input type="range" id="n" min="30" max="400" step="10" value="400">
+    <output id="no">400</output></div>
+  <div class="row"><span class="lbl">Sebar</span>
+    <input type="range" id="s" min="10" max="140" step="5" value="140">
+    <output id="so">140</output></div>
+  <div class="row"><span class="lbl">Terang</span>
+    <input type="range" id="b" min="30" max="110" step="5" value="100">
+    <output id="bo">1.00</output></div>
+  <div class="row"><span class="lbl">Oranye</span>
+    <input type="range" id="o" min="0" max="100" step="5" value="50">
+    <output id="oo">50%</output></div>
+  <div class="acts">
+    <button id="replay">Putar ulang</button>
+    <button id="reset">Balik ke 38 / 25 / 0.50</button>
+    <span class="out" id="stat"></span>
+  </div>
+</div>
+
+<div class="hero" id="hero"></div>
+</div>
+
+<script>
+function sparkle(cx, cy, r){
+  return "M"+cx+" "+(cy-r)+"C"+(cx+r*.06)+" "+(cy-r*.44)+" "+(cx+r*.44)+" "+(cy-r*.06)+" "+(cx+r)+" "+cy
+       + "C"+(cx+r*.44)+" "+(cy+r*.06)+" "+(cx+r*.06)+" "+(cy+r*.44)+" "+cx+" "+(cy+r)
+       + "C"+(cx-r*.06)+" "+(cy+r*.44)+" "+(cx-r*.44)+" "+(cy+r*.06)+" "+(cx-r)+" "+cy
+       + "C"+(cx-r*.44)+" "+(cy-r*.06)+" "+(cx-r*.06)+" "+(cy-r*.44)+" "+cx+" "+(cy-r)+"Z";
+}
+function rng(seed){ return function(){ seed = seed*1664525 + 1013904223 & 0x7fffffff;
+  return seed/0x7fffffff; }; }
+function bezierEase(x1,y1,x2,y2){
+  const cx=3*x1,bx=3*(x2-x1)-cx,ax=1-cx-bx, cy=3*y1,by=3*(y2-y1)-cy,ay=1-cy-by;
+  const fx=t=>((ax*t+bx)*t+cx)*t, fy=t=>((ay*t+by)*t+cy)*t;
+  return x=>{let t=x;for(let i=0;i<8;i++){const e=fx(t)-x;if(Math.abs(e)<1e-6)break;
+    const d=(3*ax*t+2*bx)*t+cx;if(Math.abs(d)<1e-7)break;t-=e/d;}
+    return fy(Math.min(1,Math.max(0,t)));};
+}
+const EASE = bezierEase(.5,0,.72,.62), NS = "http://www.w3.org/2000/svg", DUR = 4600;
+
+const ROCKET = `
+<svg viewBox="-52 0 262 70" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round">
+  <g class="flame">
+    <path d="M8 19 C -14 25, -34 30, -50 35 C -34 40, -14 45, 8 51 Z" fill="var(--signal)" opacity=".5" stroke="none"/>
+    <path d="M7 24 C -8 28, -22 31, -33 35 C -22 39, -8 42, 7 46 Z" fill="var(--signal)" opacity=".5" stroke="none"/>
+    <path d="M6 29 C -2 31, -9 33, -15 35 C -9 37, -2 39, 6 41 Z" fill="#FFD08A" opacity=".75" stroke="none"/>
+  </g>
+  <path d="M22 27 L6 19 L6 51 L22 43 Z"/>
+  <g opacity=".45" stroke-width=".7"><path d="M9 21 L9 49"/><path d="M13 23 L13 47"/><path d="M17 25 L17 45"/></g>
+  <path d="M22 25 H96 V45 H22 Z"/>
+  <g opacity=".3" stroke-width=".8"><path d="M38 25 V45"/><path d="M54 25 V45"/><path d="M70 25 V45"/><path d="M86 25 V45"/></g>
+  <path d="M30 25 L20 9 H38 L50 25 Z"/><path d="M30 45 L20 61 H38 L50 45 Z"/>
+  <text x="58" y="39" font-family="ui-monospace,monospace" font-size="7" fill="currentColor" stroke="none" letter-spacing=".8" opacity=".85">RSH-01</text>
+  <path d="M96 27 H110 V43 H96 Z"/>
+  <g opacity=".5" stroke-width=".7"><path d="M98 43 L104 27"/><path d="M102 43 L108 27"/><path d="M106 43 L110 30"/></g>
+  <path d="M110 26 H152 V44 H110 Z"/><circle cx="126" cy="35" r="3.4"/>
+  <g stroke-width=".8"><path d="M140 26 H150 V18 H140 Z"/><path d="M140 44 H150 V52 H140 Z"/>
+    <g opacity=".55"><path d="M143 18 V26"/><path d="M147 18 V26"/><path d="M140 22 H150"/><path d="M143 44 V52"/><path d="M147 44 V52"/><path d="M140 48 H150"/></g></g>
+  <path d="M152 26 Q182 28 200 35 Q182 42 152 44 Z"/>
+  <g opacity=".6" stroke-width=".7"><path d="M22 64 H96"/><path d="M22 61 V67"/><path d="M96 61 V67"/>
+    <path d="M110 64 H152"/><path d="M110 61 V67"/><path d="M152 61 V67"/><path d="M186 30 L196 13 H209"/></g>
+  <text x="47" y="70" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">STAGE I</text>
+  <text x="122" y="70" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">II</text>
+  <text x="197" y="11" font-family="ui-monospace,monospace" font-size="6" fill="currentColor" stroke="none" letter-spacing="1" opacity=".7">PAYLOAD</text>
+</svg>`;
+
+const hero = document.getElementById("hero");
+hero.innerHTML =
+  `<svg class="arc" preserveAspectRatio="none"><g class="dustg"></g>
+     <path class="tr" pathLength="100" vector-effect="non-scaling-stroke" d=""/></svg>` +
+  `<span class="flyer">${ROCKET}</span>
+   <div class="coord"><span class="lbl">Jakarta, ID</span><span class="lbl">6°10′S 106°49′E</span>
+     <span class="lbl">GMT+7</span><span class="lbl">Open to selected work</span></div>
+   <h1 class="wordmark">Randy<br>Setiawan<br>Hoesin</h1>
+   <p class="thesis">Most of what I build has <b>no public URL</b>. They are internal
+     systems for the Indonesian state — payroll, risk, correspondence.</p>
+   <div class="postat">
+     <div><span class="lbl">Role</span><span class="v">Fullstack Developer</span></div>
+     <div><span class="lbl">Since</span><span class="v">2024</span></div>
+   </div>`;
+
+const arc = hero.querySelector(".arc"), line = arc.querySelector(".tr"),
+      dustg = arc.querySelector(".dustg"), flyer = hero.querySelector(".flyer");
+const N = document.getElementById("n"), S = document.getElementById("s"),
+      B = document.getElementById("b"), O = document.getElementById("o"),
+      stat = document.getElementById("stat");
+
+function curve(w,h){
+  return "M "+(-.14*w)+" "+(1.24*h)
+       + " C "+(.06*w)+" "+(.94*h)+", "+(.18*w)+" "+(.62*h)+", "+(.42*w)+" "+(.44*h)
+       + " S "+(.80*w)+" "+(.16*h)+", "+(1.16*w)+" "+(-.22*h);
+}
+
+function build(){
+  const w = hero.clientWidth, full = hero.clientHeight, d = curve(w, full * 0.82);
+  arc.setAttribute("viewBox", `0 0 ${w} ${full}`);
+  line.setAttribute("d", d);
+  flyer.style.offsetPath = `path("${d}")`;
+
+  const n = +N.value, maxSpread = +S.value, bright = +B.value / 100,
+        mix = +O.value / 100;
+  document.getElementById("no").value = n;
+  document.getElementById("so").value = maxSpread;
+  document.getElementById("bo").value = bright.toFixed(2);
+  document.getElementById("oo").value = O.value + "%";
+
+  dustg.textContent = "";
+  const total = line.getTotalLength(), rand = rng(97);
+  const lag = (flyer.getBoundingClientRect().width || 200) * 0.34;
+  // Berapa pun kerapatannya, jumlah kelip abadi dibatasi. Mata tidak bisa
+  // membedakan butir mana yang berkelip, tapi baterai bisa.
+  const TW_CAP = 70;
+  let tw = 0;
+
+  for(let i = 0; i < n; i++){
+    const time = (i + 0.5) / n;
+    const at = Math.max(0, EASE(time) * total - lag);
+    const p = line.getPointAtLength(at);
+    // Pangkat > 1 menumpuk butir dekat jalur dan menipiskannya ke luar, jadi
+    // menaikkan sebaran tidak langsung berubah jadi kabut rata.
+    const spread = maxSpread * Math.pow(rand(), 1.8);
+    const ang = rand() * Math.PI * 2;
+    const x = p.x + Math.cos(ang) * spread, y = p.y + Math.sin(ang) * spread;
+    const isDot = rand() < 0.58;
+    const r = isDot ? 0.7 + rand() * 1.2 : 1.8 + rand() * 3.2;
+
+    const el = document.createElementNS(NS, isDot ? "circle" : "path");
+    if(isDot){ el.setAttribute("cx", x); el.setAttribute("cy", y); el.setAttribute("r", r); }
+    else { el.setAttribute("d", sparkle(x, y, r)); }
+    const twinkles = !isDot && tw < TW_CAP && rand() < 0.55;
+    el.setAttribute("class", twinkles ? "dust tw" : "dust");
+    if(twinkles) tw++;
+    // Campuran, bukan batas keras: peluang oranye tinggi di dekat peluncuran
+    // dan menurun sambil menanjak, jadi selalu ada dua warna berdampingan.
+    const pOrange = Math.min(1, Math.max(0, mix * (1.35 - 0.7 * time)));
+    el.setAttribute("fill", rand() < pOrange
+      ? (rand() < 0.16 ? "#FFD08A" : "var(--signal)")
+      : "var(--structure)");
+    el.style.setProperty("--rest", ((isDot ? 0.62 : 1) * bright - time * 0.12).toFixed(3));
+    el.style.animationDelay = (time * DUR + 70) + "ms";
+    el.style.setProperty("--gd", (time * DUR + 1100 + rand() * 1800) + "ms");
+    el.style.setProperty("--per", (2400 + rand() * 3000) + "ms");
+    dustg.appendChild(el);
+  }
+  stat.textContent = n + " butir · " + tw + " berkelip";
+}
+
+function play(){ hero.classList.remove("run"); void hero.offsetWidth; hero.classList.add("run"); }
+function refresh(){ build(); play(); }
+
+[N, S, B, O].forEach(el => el.addEventListener("input", build));
+[N, S, B, O].forEach(el => el.addEventListener("change", play));
+document.getElementById("replay").addEventListener("click", play);
+document.getElementById("reset").addEventListener("click", () => {
+  N.value = 38; S.value = 25; B.value = 50; O.value = 50; refresh();
+});
+let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(build, 150); });
+refresh();
+</script>
+</body>
+</html>
