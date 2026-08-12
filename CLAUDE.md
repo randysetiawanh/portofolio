@@ -6,6 +6,7 @@ R2, editor di balik Cloudflare Access.
 @.internal-docs/INDEX.md
 
 Commit sendiri: diizinkan.
+Akses SSH: diizinkan (claude-vps).
 
 Aturan global berlaku penuh. Aturan khas project ini **tidak ditulis di sini** —
 semuanya hidup sebagai `R-xxx` di dalam `.internal-docs/`, satu namespace untuk
