@@ -9,7 +9,7 @@ Commit sendiri: diizinkan.
 
 Aturan global berlaku penuh. Aturan khas project ini **tidak ditulis di sini** —
 semuanya hidup sebagai `R-xxx` di dalam `.internal-docs/`, satu namespace untuk
-seluruh folder, terpakai sampai R-179. File ini cuma memuat yang perlu dibaca
+seluruh folder, terpakai sampai R-180. File ini cuma memuat yang perlu dibaca
 sebelum indeksnya dibuka.
 
 ---
